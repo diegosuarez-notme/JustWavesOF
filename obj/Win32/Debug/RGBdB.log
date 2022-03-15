@@ -1,0 +1,25 @@
+﻿  ofApp.cpp
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(38): warning C4996: 'ofVideoGrabber::initGrabber': Use setup instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\video\ofvideograbber.h(62): note: vea la declaración de 'ofVideoGrabber::initGrabber'
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(501): warning C4996: 'ofCircle': Use ofDrawCircle instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(500): note: vea la declaración de 'ofCircle'
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(508): warning C4996: 'ofCircle': Use ofDrawCircle instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(500): note: vea la declaración de 'ofCircle'
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(515): warning C4996: 'ofCircle': Use ofDrawCircle instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(500): note: vea la declaración de 'ofCircle'
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(536): warning C4996: 'ofCircle': Use ofDrawCircle instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(500): note: vea la declaración de 'ofCircle'
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(540): warning C4996: 'ofCircle': Use ofDrawCircle instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(500): note: vea la declaración de 'ofCircle'
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(544): warning C4996: 'ofCircle': Use ofDrawCircle instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(500): note: vea la declaración de 'ofCircle'
+c:\documentos\of_v0.10.1_vs2017_release\apps\myapps\rgbdb\src\ofapp.cpp(549): warning C4996: 'ofCircle': Use ofDrawCircle instead
+  c:\documentos\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(500): note: vea la declaración de 'ofCircle'
+  RGBdB.vcxproj -> C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB\bin\RGBdB_debug.exe
+  
+  	                   2	C:\Documentos\of_v0.10.1_vs2017_release\libs\fmodex\lib\vs\Win32\
+  	  *Archivo EXTRA		 6018560	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB\bin\FreeImage.dll
+  
+  	                   1	C:\Documentos\of_v0.10.1_vs2017_release\libs\FreeImage\lib\vs\Win32\
+  	  *Archivo EXTRA		 1266176	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB\bin\fmodex.dll
+  	  *Archivo EXTRA		 1312768	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB\bin\fmodexL.dll

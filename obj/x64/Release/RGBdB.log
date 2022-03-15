@@ -1,0 +1,18 @@
+﻿     Creando biblioteca bin\RGBdB.lib y objeto bin\RGBdB.exp
+  Generando código
+  0 of 633 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Generación de código finalizada
+  RGBdB.vcxproj -> C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\RGBdB.exe
+  
+  	                   2	C:\Documentos\of_v0.10.1_vs2017_release\libs\fmodex\lib\vs\x64\
+  	  *Archivo EXTRA		 1266176	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\fmodex.dll
+  	  *Archivo EXTRA		 1312768	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\fmodexL.dll
+  	  *Archivo EXTRA		 6942208	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\FreeImage.dll
+  
+  	                   1	C:\Documentos\of_v0.10.1_vs2017_release\libs\FreeImage\lib\vs\x64\
+  	  *Archivo EXTRA		 1266176	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\fmodex.dll
+  	  *Archivo EXTRA		 1503232	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\fmodex64.dll
+  	  *Archivo EXTRA		 1312768	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\fmodexL.dll
+  	  *Archivo EXTRA		 1552384	C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\RGBdB - 64\bin\fmodexL64.dll
