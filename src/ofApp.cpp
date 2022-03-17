@@ -199,7 +199,7 @@ void ofApp::update(){
 					filtered.getPixels()[i] =( (ofInRange(hue.getPixels()[i], findHue - threshold, findHue + threshold)|| ofInRange(hue.getPixels()[i], findhueRalto - threshold, findhueRalto + threshold)) && ofInRange(bri.getPixels()[i], minBright, maxBright)&& ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;  //CYAN
 					filtered2.getPixels()[i] =( ofInRange(hue.getPixels()[i], findHue2 - threshold, findHue2 + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
 					filtered3.getPixels()[i] = (ofInRange(hue.getPixels()[i], findHue3 - threshold, findHue3 + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
-					filtered4.getPixels()[i] = (ofInRange(sat.getPixels()[i], 0, 60) && ofInRange(bri.getPixels()[i], 220, 255)) ? 255 : 0;
+					filtered4.getPixels()[i] = (ofInRange(sat.getPixels()[i], 0, 60) && ofInRange(bri.getPixels()[i], 110, 255)) ? 255 : 0;
 					filtered5.getPixels()[i] = (ofInRange(sat.getPixels()[i], 0, 60) && ofInRange(bri.getPixels()[i], 220, 255)) ? 255 : 0;
 				}
 				filtered.flagImageChanged();
@@ -210,11 +210,11 @@ void ofApp::update(){
 				contourFinder.findContours(filtered, minArea, maxArea , 10, false, true);
 				contourFinder2.findContours(filtered2, minArea, maxArea, 10, false, true);
 				contourFinder3.findContours(filtered3, minArea, maxArea, 10, false, true);
-				contourFinder4.findContours(filtered4, minArea*2, maxArea, 1, false, true);
+				contourFinder4.findContours(filtered4, maxArea/2, maxArea, 1, false, true);
 				contourFinder5.findContours(filtered4, minArea, maxArea, 1, false, true);
 
 				//PRUEBA DE LLEVAR IDs
-				/*
+				/*maxArea/2
 				IP.reset();
 				for (int i = 0; i < contourFinder.nBlobs; i++) {
 					IP.update(contourFinder.blobs[i].centroid, contourFinder.blobs[i].boundingRect);
