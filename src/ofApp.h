@@ -7,6 +7,7 @@
 #include "ofxOSC.h"
 #include "imageProjection.h"
 #include "linea.h"
+#include "math.h"
 
 #define _USE_LIVE_VIDEO		// uncomment this to use a live camera
 								// otherwise, we'll use a movie file
@@ -59,20 +60,29 @@ public:
 	int altoThumb;
 
 	//OPEN CV
+	ofImage colorTransparency;
+	ofxCvGrayscaleImage imgMaskTrigger;
+	ofxCvColorImage imgMaskColor;
 	ofxCvColorImage			rgb,hsb,colorImg,colorImgReduced,greyImage;
 	ofxCvGrayscaleImage 	hue,sat,bri,filtered, filtered2, filtered3, filtered4, filtered5;
 	ofxCvGrayscaleImage 	grayBg, grayImage;
 	ofxCvGrayscaleImage 	grayDiff;
+	ofxCvGrayscaleImage 	circleCentreROI,circleLeftROI,circleRightROI;
 	ofxCvContourFinder 	contourFinder, contourFinder2, contourFinder3, contourFinder4, contourFinder5;
+	ofFbo fboTrigger;   //mascara para triggers
 	int				thresholdM;
 
 	int 				findHue,findHue1, findHue2, findHue3, findhueRalto, threshold;
+	int margen;
 	int					hueDifC, hueDifM, hueDifY;
 	int 				findBright, findSat;
 	bool				bLearnBakground;
 	bool  lightSent;
 	int minArea, maxArea;
 	int maxBright,minBright;
+	int ROIx, ROIy;
+	int radioCirculo; //radio del circulo que servira de mascara
+
 	//OSC
 	ofxOscSender senderOSC;
 	ofxOscMessage m;

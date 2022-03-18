@@ -11,10 +11,14 @@ void ofApp::setup(){
 	ofLog(OF_LOG_NOTICE, "CamHreduced " + ofToString(camHeightReduced));
 	anchoThumb = ofGetWidth()/3;
 	altoThumb = ofGetHeight() / 3;
+	margen = 50;
+	ROIx = camWidthReduced / 3;
+	ROIy = camHeightReduced;
 
 
 	//INIZILIZATION
 	blackArea = 0;
+	radioCirculo = 50;
 
 	#ifdef _USE_LIVE_VIDEO
 
@@ -54,6 +58,39 @@ void ofApp::setup(){
 	grayBg.allocate(camWidth, camHeight);
 	grayDiff.allocate(camWidth, camHeight);
 	colorImgReduced.allocate(camWidth, camHeight);
+
+	//PREPARAR MASCARAS
+	fboTrigger.allocate(camWidthReduced, camHeightReduced, OF_IMAGE_COLOR_ALPHA); //or GL_RED if you are using the programmable renderer
+	fboTrigger.begin();
+	ofSetColor(255, 255, 255,0);
+	ofFill();
+	ofDrawRectangle(0, 0, camWidthReduced, camHeightReduced);
+	ofSetColor(0,0,0,255);
+	ofFill();
+	//ofDrawRectangle(margen, margen, camWidthReduced - margen * 2, camHeightReduced - margen * 2);
+	ofDrawRectangle(margen,margen, 10,10);
+	fboTrigger.end();
+
+	for (int i = 0; i < camWidthReduced * (camHeightReduced); i++) {
+		if (i % camWidthReduced < margen || i / camWidthReduced < margen) {
+			fboTrigger.begin();
+			ofSetColor(255, 255, 255, 0);
+			ofFill();
+			ofDrawRectangle(i% camHeightReduced, i/ camWidthReduced, 1, 1);
+			fboTrigger.end();
+
+		}
+		else {
+			fboTrigger.begin();
+			ofSetColor(0, 0, 0, 255);
+			ofFill();
+			ofDrawRectangle(i % camHeightReduced, i / camWidthReduced, 1, 1);
+			fboTrigger.end();
+		}
+	}
+
+	
+
 	//COLOR FINDER
 	//reserve memory for cv images
 
@@ -67,11 +104,18 @@ void ofApp::setup(){
 	//filtered2.allocate(camWidth, camHeight);
 	//filtered3.allocate(camWidth, camHeight);
 	
+	//colorTransparency.allocate(camWidthReduced, camHeightReduced,OF_PIXELS_RGBA);
 	rgb.allocate(camWidthReduced, camHeightReduced);
 	hsb.allocate(camWidthReduced, camHeightReduced);
 	hue.allocate(camWidthReduced, camHeightReduced);
 	sat.allocate(camWidthReduced, camHeightReduced);
 	bri.allocate(camWidthReduced, camHeightReduced);
+	circleLeftROI.allocate(camWidthReduced, camHeightReduced);
+	circleCentreROI.allocate(ROIx, ROIy);
+	circleRightROI.allocate(ROIx, ROIy);
+	imgMaskTrigger.allocate(camWidthReduced, camHeightReduced);
+	imgMaskColor.allocate(camWidthReduced, camHeightReduced);
+	colorTransparency.allocate(camWidthReduced, camHeightReduced,OF_IMAGE_COLOR_ALPHA);
 	grayImage.allocate(camWidthReduced, camHeightReduced);
 	filtered.allocate(camWidthReduced, camHeightReduced);
 	filtered2.allocate(camWidthReduced, camHeightReduced);
@@ -136,6 +180,9 @@ void ofApp::update(){
 			colorImgReduced.resize(camWidthReduced, camHeightReduced);
 			//GET TEXTURE FOR SPOUT
 			ofPixels & pixels = colorImg.getPixels();
+			colorTransparency= colorImg.getPixels();
+			//colorTransparency.getTexture().setAlphaMask(fboTrigger.getTexture());
+
 			/*for (size_t i = 0; i < pixels.size(); i++) {
 				videoInverted[i] = pixels[i];
 			}*/
@@ -148,42 +195,12 @@ void ofApp::update(){
 			//FIND COLORS
 			//copy webcam pixels to rgb image
 			rgb= colorImgReduced;
-			if (strcmp(PIEZA, "Luminosidad") == 0) {
-				float areaTemp = 0;
-				blackArea = 0; //se puede quitar?
-				grayImage = colorImg;
-				//grayDiff.absDiff(grayBg, grayImage);
-				grayImage.threshold(threshold);
-				//run the contour finder on the filtered image to find blobs with a certain hue
-				contourFinder.findContours(grayImage, minArea, maxArea , 80, true, true);
+			imgMaskColor = rgb;
+			imgMaskColor.getTexture().setAlphaMask(fboTrigger.getTexture());
 			
-				//BLOB ANALYSIS
-				numBlobs = contourFinder.nBlobs;
-				for (int i = 0; i < contourFinder.nBlobs; i++) {
-					contourFinder.blobs[i].draw(camWidthReduced, camHeightReduced);
-					if (i > 0) {
-						areaTemp = contourFinder.blobs[i].boundingRect.getArea();
-					}
-					//posX = contourFinder.blobs[i].boundingRect.getCenter().x;
-					//posY = contourFinder.blobs[i].boundingRect.getCenter().y;
-					//ofLog(OF_LOG_NOTICE, "NumBlobs "+ ofToString(numBlobs) + "Blob: " + ofToString(i) + +" New Area is " + ofToString(areaTemp) +" x "+ ofToString(posX) +" y "+ ofToString(posY));
-					if (areaTemp > blackArea && areaTemp < camWidth*camHeight) {
-						blackArea = areaTemp;
-						ofLog(OF_LOG_NOTICE, "Max Area is " + ofToString(blackArea));
-						posX = contourFinder.blobs[i].boundingRect.getCenter().x;
-						posY = contourFinder.blobs[i].boundingRect.getCenter().y;
-					}
-					// draw over the centroid if the blob is a hole
-					ofSetColor(255);
-					if (contourFinder.blobs[i].hole) {
-						//ofDrawBitmapString("hole",
-						//	contourFinder.blobs[i].boundingRect.getCenter().x + camWidth,
-						//	contourFinder.blobs[i].boundingRect.getCenter().y + camHeight);
-					}
-				}
-			}
-			else if (strcmp(PIEZA, "Color") == 0) {//pecera
+			if (strcmp(PIEZA, "Color") == 0) {//pecera   se puede quitar para rgbdb y just waves
 
+				
 
 				//duplicate rgb
 				hsb = rgb;
@@ -191,17 +208,64 @@ void ofApp::update(){
 				hsb.convertRgbToHsv();
 				//store the three channels as grayscale images
 				hsb.convertToGrayscalePlanarImages(hue, sat, bri);
+
+				circleLeftROI.resetROI();
+				circleLeftROI = bri;
+				circleLeftROI.setROI(ofRectangle(0, 0, ROIx, ROIy));
+				circleCentreROI= circleLeftROI.getRoiPixels();
+				
+				
+
+				//Mascaras
+				imgMaskTrigger = imgMaskColor;
+				imgMaskTrigger.getTexture().setAlphaMask(fboTrigger.getTexture());
+
 				//threshold of hue
 				//hue.threshold(threshold);
+				float margen1 = 10;
 				//filter image based on the hue value were looking for
+				int j = 0;
 				for (int i = 0; i < camWidthReduced*(camHeightReduced); i++) {
 					//filtered.getPixels()[i] = (ofInRange(hue.getPixels()[i], findHue1 - hueDifC, findHue1 + hueDifC) && ofInRange(sat.getPixels()[i], 100,255)) ? 255 : 0;  //findhue for picked colors
-					filtered.getPixels()[i] =( (ofInRange(hue.getPixels()[i], findHue - threshold, findHue + threshold)|| ofInRange(hue.getPixels()[i], findhueRalto - threshold, findhueRalto + threshold)) && ofInRange(bri.getPixels()[i], minBright, maxBright)&& ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;  //CYAN
-					filtered2.getPixels()[i] =( ofInRange(hue.getPixels()[i], findHue2 - threshold, findHue2 + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
+					filtered.getPixels()[i] = ((ofInRange(hue.getPixels()[i], findHue - threshold, findHue + threshold) || ofInRange(hue.getPixels()[i], findhueRalto - threshold, findhueRalto + threshold)) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;  //CYAN
+					filtered2.getPixels()[i] = (ofInRange(hue.getPixels()[i], findHue2 - threshold, findHue2 + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
 					filtered3.getPixels()[i] = (ofInRange(hue.getPixels()[i], findHue3 - threshold, findHue3 + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
-					filtered4.getPixels()[i] = (ofInRange(sat.getPixels()[i], 0, 60) && ofInRange(bri.getPixels()[i], 110, 255)) ? 255 : 0;
+
+					//filtered4.getPixels()[i] = ofInRange(imgMaskTrigger.getPixels()[i], 110, 255) ? 255 : 0;
 					filtered5.getPixels()[i] = (ofInRange(sat.getPixels()[i], 0, 60) && ofInRange(bri.getPixels()[i], 220, 255)) ? 255 : 0;
+					
+					//filtered 4
+					if (i % camWidthReduced < margen || i % camWidthReduced > camWidthReduced - margen || i / camWidthReduced < margen || i / camWidthReduced >camHeightReduced - margen) {
+						//filtered4.getPixels()[i] = 255;
+						filtered4.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) ? 255 : 0;
+						
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						filtered4.getPixels()[i] = 0;
+						//ofLog(OF_LOG_NOTICE, "Brillo :");
+					}
+					
+					
 				}
+				//FOR PARA CIRCULOS
+				for (int i = 0; i < ROIx * (ROIy); i++) {
+					//Centre circle
+					float res = sqrt(pow(i % ROIx - ROIx / 2, 2) + pow((int)i / ROIx - ROIy / 2, 2)); //- ROIx / 2   - ROIy/2
+					if (res > radioCirculo) {
+
+						circleCentreROI.getPixels()[i] = 0;
+
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						//circleCentreROI.getPixels()[i] = 255;
+						circleCentreROI.getPixels()[i] = ofInRange(circleCentreROI.getPixels()[i], 110, 255) ? 255 : 0;
+					}
+				}
+				//filtered4.getTexture().setAlphaMask(fboTrigger.getTexture());
 				filtered.flagImageChanged();
 				filtered2.flagImageChanged();
 				filtered3.flagImageChanged();
@@ -210,8 +274,8 @@ void ofApp::update(){
 				contourFinder.findContours(filtered, minArea, maxArea , 10, false, true);
 				contourFinder2.findContours(filtered2, minArea, maxArea, 10, false, true);
 				contourFinder3.findContours(filtered3, minArea, maxArea, 10, false, true);
-				contourFinder4.findContours(filtered4, maxArea/2, maxArea, 1, false, true);
-				contourFinder5.findContours(filtered4, minArea, maxArea, 1, false, true);
+				contourFinder4.findContours(filtered4, 1, maxArea, 1, false, true);
+				//contourFinder5.findContours(filtered4, minArea, maxArea, 1, false, true);
 
 				//PRUEBA DE LLEVAR IDs
 				/*maxArea/2
@@ -484,6 +548,9 @@ void ofApp::draw(){
 		hue.draw(camWidthReduced, 0, camWidthReduced, camHeightReduced);
 		sat.draw(camWidthReduced * 2, 0, camWidthReduced, camHeightReduced);
 		bri.draw(camWidthReduced *3, 0, camWidthReduced, camHeightReduced);
+		//imgMaskTrigger.draw(camWidthReduced*3, 0, camWidthReduced, camHeightReduced); //prueba de mascaras
+		//circleLeftROI.drawROI(camWidthReduced * 3, 0, camWidthReduced, camHeightReduced); //prueba de mascaras con imagen
+		
 		
 		
 		//segunda fila
@@ -498,6 +565,11 @@ void ofApp::draw(){
 		contourFinder2.draw(camWidthReduced, camHeightReduced * 2, camWidthReduced, camHeightReduced);
 		contourFinder3.draw(camWidthReduced *2, camHeightReduced * 2, camWidthReduced, camHeightReduced);
 		contourFinder4.draw(camWidthReduced * 3, camHeightReduced * 2, camWidthReduced, camHeightReduced);
+
+		//cuarta fila
+		circleCentreROI.draw(camWidthReduced, camHeightReduced * 3, ROIx, ROIy); //prueba de mascaras con imagen
+		circleCentreROI.draw(camWidthReduced + ROIx, camHeightReduced * 3, ROIx, ROIy); //prueba de mascaras con imagen
+		circleCentreROI.draw(camWidthReduced + ROIx*2, camHeightReduced * 3, ROIx, ROIy); //prueba de mascaras con imagen
 		
 		//draw  circles for found blobs
 		for (int i = 0; i < contourFinder.nBlobs; i++) {
@@ -680,6 +752,16 @@ void ofApp::keyPressed(int key){
 		hueDifY--;
 		ofLog(OF_LOG_NOTICE, "hueDifY " + ofToString(hueDifY));
 	}
+	if (key == 't' || key == 'T')
+	{
+		radioCirculo++;
+		ofLog(OF_LOG_NOTICE, "radioCirculo " + ofToString(radioCirculo));
+	}
+	if (key == 'g' || key == 'G')
+	{
+		radioCirculo--;
+		ofLog(OF_LOG_NOTICE, "radioCirculo " + ofToString(radioCirculo));
+	}
 	switch (key) {
 	case ' ':
 		bLearnBakground = true;
@@ -721,7 +803,8 @@ void ofApp::mousePressed(int x, int y, int button){
 	//get hue value on mouse position
 	//findHue = hue.getPixels()[my*camWidth + mx];
 	findHue = hue.getPixels()[my*camWidthReduced + mx];
-	findBright = bri.getPixels()[my*camWidthReduced + mx];
+	findBright = bri.getPixels()[my * camWidthReduced + mx];
+	//findBright = filtered4.getPixels()[my*camWidthReduced + mx];
 	findSat = sat.getPixels()[my*camWidthReduced + mx];
 
 	//ofLog(OF_LOG_NOTICE, "Escala " + ofToString(sx));
