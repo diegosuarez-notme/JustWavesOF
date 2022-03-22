@@ -254,7 +254,7 @@ t.tempo=120/60;
 		}{
 	      //  msg.postln;
 		}
-	},'/light1',n);
+	},'/light',n);
 )
 
 (
@@ -265,8 +265,8 @@ t.tempo=120/60;
 	//msg.postln;
 	//tam.postln;
 		if(tam>0){
-			//k=Synth(\kick).playN(-1);
-		k=Synth(\kick);
+		k=Synth(\caja).playN(-1);
+		//k=Synth(\kick);
 
 
 		msg.postln;
@@ -310,14 +310,15 @@ Ndef(\noiseWave).fadeTime=5;
 SynthDef(\kick,{
 	arg freqA=800,freqB=40,freqC=140,freqDur1=0.006,freqDur2=0.3,freqC1=9,freqC2=(-1),atk=0.01,rel=1,c1=4,c2=(-12),amp=1,pan=(0),out=0;
 	var sig,env,freqSweep;
+	//freqSweep=EnvGen.ar(Env.new([freqA,freqB,freqC],[freqDur1,freqDur2],[freqC1,freqC2]),doneAction:2);
 	freqSweep=Env([freqA,freqB,freqC],[freqDur1,freqDur2],[freqC1,freqC2]).ar;
-	env=Env([0,1,0],[atk,rel],[c1,c2],doneAction:2).kr(2);
+	//env=Env([0,1,0],[atk,rel],[c1,c2],doneAction:2).kr(2);
+	env=EnvGen.kr(Env.new([0,1,0],[atk,rel],[c1,c2]),doneAction:2);
 	sig=Pan2.ar(Mix(SinOsc.ar(freqSweep,pi/2)),pan);
 	sig=sig*env;
 
 	//sig= FreeVerb.ar(sig,SinOsc.kr(1).range(0.6,0.7));
-	//sig=Pan2.ar(sig,pan,amp);
-	sig= DelayC.kr(sig,2,0.25,0.5,sig);
+	//sig= DelayC.kr(sig,2,0.25,0.5,sig);
 				Out.ar(out,sig);
 			}).add;
 )
@@ -334,7 +335,7 @@ SynthDef(\caja,{
 	arg freqA=2200,freqB=180,freqC=80,freqDur1=0.06,freqDur2=0.6,freqC1=9,freqC2=(-1),atk=0.001,rel=1.5,c1=4,c2=(-12),amp=1,pan=(0),out=0;
 		var sig,env,freqSweep;
 				freqSweep=Env([freqA,freqB,freqC],[freqDur1,freqDur2],[freqC1,freqC2]).ar;
-				env=Env([0,1,0],[atk,rel],[c1,c2]).kr(2);
+				env=EnvGen.kr(Env.new([0,1,0],[atk,rel],[c1,c2]),doneAction:2);
 	            sig=LPF.ar(WhiteNoise.ar(0.3),freqA);
 				//sig=sig+SinOsc.ar(freqSweep,pi,0.2);
 				sig=sig*env;
@@ -352,7 +353,7 @@ SynthDef(\clap,{
 	arg freqA=4200,freqB=180,freqC=30,freqDur1=0.09,freqDur2=0.6,freqC1=9,freqC2=(-1),atk=0.001,rel=2,c1=4,c2=(-12),amp=0.5,pan=(0),out=0;
 	var sig,env,freqSweep;
 	freqSweep=Env([freqA,freqB,freqC],[freqDur1,freqDur2],[freqC1,freqC2]).ar;
-	env=Env([0,1,0],[atk,rel],[c1,c2]).kr(2);
+	env=EnvGen.kr(Env([0,1,0],[atk,rel],[c1,c2]),doneAction:2);
 	sig=LPF.ar(WhiteNoise.ar(0.3),freqA);
 	// sig=sig+SinOsc.ar(freqSweep,pi/2);
 	sig=sig*env;
@@ -386,10 +387,11 @@ Out.ar([0,1],audio);
 
 )
 
+b=Synth(\bass)
+
 s.set(\cutoff,35);
 s=Synth(\bass).set(\cutoff,500,\decay,1,\note,rrand(35,45).asInteger); // decay from 0.6 to 1.1 (depende del numero de blobs note de 35 a 45, depende de su posicion alejado del centro
 
-35.50.rand2.asInteger.postln
 
 //GRAIN
 (
@@ -399,6 +401,7 @@ SynthDef(\grain, { |out=(1), freq=50, amp=0.2|
 )
 
 // ORGAN    este para el centro 2 hacerlo ndef
+// Original code by nicolaariutti, tweaked by !ME
 (
 SynthDef(\organ, {
 	| midinote=300, gate=1, amp=0.05,dur=1 |
@@ -425,7 +428,7 @@ t.tempo=120/60
 (
 Pbind(
 	\instrument, \organ,
-	\midinote, Pseq( [150,240,350], inf),
+	\midinote, Pseq( [100,300,200], inf),
 	//\t60, 1,
 	//\pitchy, 4,
 	\dur, 1.25
@@ -434,7 +437,9 @@ Pbind(
 
 //violin
 
+
 // AURORA
+// Original code by nicolaariutti, tweaked by !ME
 (
 SynthDef(\space, {
 			|
@@ -456,11 +461,11 @@ sig= FreeVerb.ar(sig,SinOsc.kr(5).range(0.6,0.8));
 			Out.ar(out, Pan2.ar(sig, pos));
 		}).add;
 )
-b=Synth(\space).set(\freq,60,\frate,2,\dur,0.55)
+b=Synth(\space).set(\freq,150,\frate,1,\dur,0.55)
 (
 Pbind(
 	\instrument, \space,
-	\freq, Pseq( (60..70), inf).midicps,
+	\freq, Pseq( (60..70).midicps, inf),
 	//\t60, 1,
 	//\pitchy, 4,
 	\dur, 0.25
@@ -471,7 +476,7 @@ Pbind(
 //MADERA
 (
 SynthDef(\madera, {
-	|fs=9, t60=30, pitchy=6, amp=0.25, gate=1|    //fs 1 madera,   20 bambu, 60 xilofono  (t60 9 es una campana)
+	|fs=20, t60=2, pitchy=2, amp=0.25, gate=1|    //fs 1 madera,   20 bambu, 60 xilofono  (t60 9 es una campana)
 	var sig, exciter;
 	//exciter = Impulse.ar(0);
 	exciter = WhiteNoise.ar() * EnvGen.ar(Env.perc(0.001, 0.05), gate) * 0.25;
@@ -504,7 +509,6 @@ Pbind(
 
 
 
-
 ////////////////////
 ///BINDS
 //Bass
@@ -514,7 +518,8 @@ Pbind(*[
 	\instrument: \bass,
 	\note: Pseq(
 		[
-			Pseq([35,47,51,41,41,36,42,41,44],inf)
+			//Pseq([35,47,51,41,41,36,42,41,44],inf)
+				Pseq([31,37,49,42,38,33,35,50],inf)
 
 		],1),
 	\dur:Pseq([0.5],inf),
@@ -545,17 +550,24 @@ Pdef(\kk).play(t)
 Pdef(\kk).stop(t)
 
 b = NetAddr.new("127.0.0.1", 7001);    // create the NetAddr
-b.sendMsg("/composition/layers/5/clips/1/connect", 1);    // send the application the message "hello" with the parameter "there"
+b.sendMsg("/composition/layers/3/clips/1/connect", 1);    // send the application the message "hello" with the parameter "there"
 
 
 (
-SynthDef(\nada, { |out=(1), freq=50, amp=0.2|
-    //OffsetOut.ar(out, Saw.ar(XLine.kr(freq, 100)) * EnvGen.kr(Env.perc, doneAction: Done.freeSelf) * amp)
+SynthDef(\nada, {
+	| midinote=0, gate=0.1, amp=0.00,dur=1 |
+	//var env = EnvGen.kr(Env.asr(0.1, 1, 0.1), gate, doneAction:2);
+	var env = EnvGen.kr(Env.triangle(dur), gate, doneAction:2);
+	var sig = VarSaw.ar(
+		midinote,
+		width:LFNoise2.kr(1).range(0.2, 0.8)*SinOsc.kr(5, Rand(0.0, 1.0)).range(0.7,0.8))*0.25;
+	sig = sig * env * amp;
+	Out.ar(0, sig!2);
 }).add;
 )
 (
 SynthDef(\message,{ //ossDEF
-		b.sendMsg("/composition/layers/5/clips/1/connect", 1);
+		b.sendMsg("/composition/layers/3/clips/1/connect", 1);
 			}).add;
 )
 s=Synth(\message);
@@ -563,8 +575,8 @@ s=Synth(\message);
 (
 			Pdef(\osc2,Pbind(
 				\amp,0.5,
-				\instrument,\caja,
-	          // \finish, Pfunc { |e| b.sendMsg("/composition/layers/5/clips/1/connect", 1)},
+				\instrument,\nada,
+	           \finish, Pfunc { |e| b.sendMsg("/composition/layers/3/clips/1/connect", 1)},
 				\dur,Pseq([4],inf);
 			   )
             )
@@ -573,11 +585,25 @@ s=Synth(\message);
 Pdef(\osc2).play(t)
 Pdef(\osc2).stop(t)
 
+
+(
+			Pdef(\osc1,Pbind(
+				\amp,0.5,
+				\instrument,\caja,
+	          // \finish, Pfunc { |e| b.sendMsg("/composition/layers/4/clips/1/connect", 1)},
+				\dur,Pseq([2],inf);
+			   )
+            )
+
+)
+Pdef(\osc1).play(t)
+Pdef(\osc1).stop(t)
+
 (
 			Pdef(\crash,Pbind(
 				\amp,0.3,
 				\instrument,\clap,
-	          // \finish, Pfunc { |e| b.sendMsg("/composition/layers/5/clips/1/connect", 1)},
+	          // \finish, Pfunc { |e| b.sendMsg("/composition/layers/3/clips/1/connect", 1)},
 				\dur,Pseq([2,1],inf);
 			   )
             )

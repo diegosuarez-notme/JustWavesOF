@@ -11,7 +11,7 @@ void ofApp::setup(){
 	ofLog(OF_LOG_NOTICE, "CamHreduced " + ofToString(camHeightReduced));
 	anchoThumb = ofGetWidth()/3;
 	altoThumb = ofGetHeight() / 3;
-	margen = 50;
+	margen = 20;
 	ROIx = camWidthReduced / 3;
 	ROIy = camHeightReduced;
 
@@ -110,24 +110,37 @@ void ofApp::setup(){
 	hue.allocate(camWidthReduced, camHeightReduced);
 	sat.allocate(camWidthReduced, camHeightReduced);
 	bri.allocate(camWidthReduced, camHeightReduced);
-	circleLeftROI.allocate(camWidthReduced, camHeightReduced);
+	
+	circleLeftROI.allocate(ROIx, ROIy);
 	circleCentreROI.allocate(ROIx, ROIy);
 	circleRightROI.allocate(ROIx, ROIy);
+	cirLB.allocate(ROIx, ROIy);
+	cirCB.allocate(ROIx, ROIy);
+	cirRB.allocate(ROIx, ROIy);
+	circleGeneralROI.allocate(camWidthReduced, camHeightReduced);
+	circleLeftBROI.allocate(camWidthReduced, camHeightReduced);
+	circleCentreBROI.allocate(camWidthReduced, camHeightReduced);
+	circleRightBROI.allocate(camWidthReduced, camHeightReduced);
 	imgMaskTrigger.allocate(camWidthReduced, camHeightReduced);
 	imgMaskColor.allocate(camWidthReduced, camHeightReduced);
-	colorTransparency.allocate(camWidthReduced, camHeightReduced,OF_IMAGE_COLOR_ALPHA);
+	//colorTransparency.allocate(camWidthReduced, camHeightReduced,OF_IMAGE_COLOR_ALPHA);
 	grayImage.allocate(camWidthReduced, camHeightReduced);
 	filtered.allocate(camWidthReduced, camHeightReduced);
 	filtered2.allocate(camWidthReduced, camHeightReduced);
 	filtered3.allocate(camWidthReduced, camHeightReduced);
 	filtered4.allocate(camWidthReduced, camHeightReduced);
 	filtered5.allocate(camWidthReduced, camHeightReduced);
+	filtered6.allocate(camWidthReduced, camHeightReduced);
+	filtered7.allocate(camWidthReduced, camHeightReduced);
+	filtered8.allocate(camWidthReduced, camHeightReduced);
 	
 
 	bLearnBakground = true;
 	thresholdM = 100;
 	minArea = 50;
 	maxArea = camWidthReduced*camHeightReduced;//(camWidth * camHeight)/20;
+	minAreaC = 50;
+	maxAreaC = ROIx * ROIy; //mejorar a circulo
 	threshold = 20;
 	hueDifC = 15;
 	hueDifM = 15;
@@ -138,6 +151,7 @@ void ofApp::setup(){
 	findHue2 = 66;  //g
 	findHue3 = 116;		//b
 	lightSent = false;
+	lightSent2 = false;
 	maxBright = 220;
 	minBright = 101;
 						
@@ -209,10 +223,25 @@ void ofApp::update(){
 				//store the three channels as grayscale images
 				hsb.convertToGrayscalePlanarImages(hue, sat, bri);
 
-				circleLeftROI.resetROI();
-				circleLeftROI = bri;
-				circleLeftROI.setROI(ofRectangle(0, 0, ROIx, ROIy));
-				circleCentreROI= circleLeftROI.getRoiPixels();
+				//Circulo izqda
+				circleLeftBROI.resetROI();
+				circleLeftBROI = bri;
+				circleLeftBROI.setROI(ofRectangle(0, 0, ROIx, ROIy));
+				cirLB= circleLeftBROI.getRoiPixels();
+
+				//circleLeftROI = circleLeftBROI.getRoiPixels();
+				//Circulo cenrto
+				circleCentreBROI.resetROI();
+				circleCentreBROI = bri;
+				circleCentreBROI.setROI(ofRectangle(ROIx, 0, ROIx, ROIy));
+				cirCB = circleCentreBROI.getRoiPixels();
+				circleCentreROI = circleCentreBROI.getRoiPixels();
+				//Circulo dcha
+				circleRightBROI.resetROI();
+				circleRightBROI = bri;
+				circleRightBROI.setROI(ofRectangle(ROIx*2, 0, ROIx, ROIy));
+				cirRB = circleRightBROI.getRoiPixels();
+				circleRightROI = circleRightBROI.getRoiPixels();
 				
 				
 
@@ -231,8 +260,6 @@ void ofApp::update(){
 					filtered2.getPixels()[i] = (ofInRange(hue.getPixels()[i], findHue2 - threshold, findHue2 + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
 					filtered3.getPixels()[i] = (ofInRange(hue.getPixels()[i], findHue3 - threshold, findHue3 + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
 
-					//filtered4.getPixels()[i] = ofInRange(imgMaskTrigger.getPixels()[i], 110, 255) ? 255 : 0;
-					filtered5.getPixels()[i] = (ofInRange(sat.getPixels()[i], 0, 60) && ofInRange(bri.getPixels()[i], 220, 255)) ? 255 : 0;
 					
 					//filtered 4
 					if (i % camWidthReduced < margen || i % camWidthReduced > camWidthReduced - margen || i / camWidthReduced < margen || i / camWidthReduced >camHeightReduced - margen) {
@@ -246,13 +273,81 @@ void ofApp::update(){
 						filtered4.getPixels()[i] = 0;
 						//ofLog(OF_LOG_NOTICE, "Brillo :");
 					}
+
+					//filtered 8 caja
+					if (i % camWidthReduced < margen || i % camWidthReduced > camWidthReduced - margen || i / camWidthReduced < margen || i / camWidthReduced >camHeightReduced - margen) {
+						//filtered4.getPixels()[i] = 255;
+						filtered8.getPixels()[i] = ((ofInRange(hue.getPixels()[i], findHue - threshold, findHue + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255))) ? 255 : 0;
+
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						filtered8.getPixels()[i] = 0;
+						//ofLog(OF_LOG_NOTICE, "Brillo :");
+					}
+
+					//filtered 5 circulo izqda
+					float res = sqrt(pow(i % camWidthReduced - (ROIx/2), 2) + pow((int)i / camWidthReduced - ROIy / 2, 2));
+					if (res < radioCirculo) {
+						filtered5.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) ? 255 : 0;
+
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						filtered5.getPixels()[i] = 0;
+						//ofLog(OF_LOG_NOTICE, "Brillo :");
+					}
+
+					//filtered 6 circulo centro
+					res = sqrt(pow(i % camWidthReduced - (ROIx+ROIx / 2), 2) + pow((int)i / camWidthReduced - ROIy / 2, 2));
+					if (res < radioCirculo) {
+						filtered6.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) ? 255 : 0;
+
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						filtered6.getPixels()[i] = 0;
+						//ofLog(OF_LOG_NOTICE, "Brillo :");
+					}
+
+					//filtered 7 circulo dcha
+					res = sqrt(pow(i % camWidthReduced - (ROIx*2+ROIx/2), 2) + pow((int)i / camWidthReduced - ROIy / 2, 2));
+					if (res < radioCirculo) {
+						filtered7.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) ? 255 : 0;
+
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						filtered7.getPixels()[i] = 0;
+						//ofLog(OF_LOG_NOTICE, "Brillo :");
+					}
 					
+
 					
 				}
 				//FOR PARA CIRCULOS
+				/*
 				for (int i = 0; i < ROIx * (ROIy); i++) {
-					//Centre circle
+					//Left circle
 					float res = sqrt(pow(i % ROIx - ROIx / 2, 2) + pow((int)i / ROIx - ROIy / 2, 2)); //- ROIx / 2   - ROIy/2
+					if (res > radioCirculo) {
+
+						circleLeftROI.getPixels()[i] = 0;
+
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						circleLeftROI.getPixels()[i] = 255;
+						circleLeftROI.getPixels()[i] = ofInRange(cirLB.getPixels()[i], 110, 255) ? 255 : 0;
+					}
+
+					//Centre circle
+					res = sqrt(pow(i % ROIx - ROIx / 2, 2) + pow((int)i / ROIx - ROIy / 2, 2)); //- ROIx / 2   - ROIy/2
 					if (res > radioCirculo) {
 
 						circleCentreROI.getPixels()[i] = 0;
@@ -264,18 +359,48 @@ void ofApp::update(){
 						//circleCentreROI.getPixels()[i] = 255;
 						circleCentreROI.getPixels()[i] = ofInRange(circleCentreROI.getPixels()[i], 110, 255) ? 255 : 0;
 					}
-				}
+					//Right circle
+					res = sqrt(pow(i % ROIx - ROIx / 2, 2) + pow((int)i / ROIx - ROIy / 2, 2)); //- ROIx / 2   - ROIy/2
+					if (res > radioCirculo) {
+
+						circleRightROI.getPixels()[i] = 0;
+
+						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
+
+					}
+					else {
+						//circleCentreROI.getPixels()[i] = 255;
+						circleRightROI.getPixels()[i] = ofInRange(circleRightROI.getPixels()[i], 110, 255) ? 255 : 0;
+					}
+				}*/
 				//filtered4.getTexture().setAlphaMask(fboTrigger.getTexture());
 				filtered.flagImageChanged();
 				filtered2.flagImageChanged();
 				filtered3.flagImageChanged();
 				filtered4.flagImageChanged();
+				filtered5.flagImageChanged();
+				filtered6.flagImageChanged();
+				filtered7.flagImageChanged();
+				filtered8.flagImageChanged();
+				//circleLeftROI.flagImageChanged();
+				//circleCentreROI.flagImageChanged();
+				//circleRightROI.flagImageChanged();
+
 				//run the contour finder on the filtered image to find blobs with a certain hue
 				contourFinder.findContours(filtered, minArea, maxArea , 10, false, true);
 				contourFinder2.findContours(filtered2, minArea, maxArea, 10, false, true);
 				contourFinder3.findContours(filtered3, minArea, maxArea, 10, false, true);
-				contourFinder4.findContours(filtered4, 1, maxArea, 1, false, true);
-				//contourFinder5.findContours(filtered4, minArea, maxArea, 1, false, true);
+				contourFinder4.findContours(filtered4, maxArea/3, maxArea, 1, false, true);
+				contourFinder8.findContours(filtered8, maxArea/3, maxArea, 5, false, true);
+
+				//contourFinderCircleL.findContours(circleLeftROI, 1, 15000, 6, false, true);
+				//contourFinderCircleC.findContours(circleCentreROI, minAreaC, maxAreaC, 6, false, true);
+				//contourFinderCircleR.findContours(circleRightROI, 1, maxAreaC, 6, false, true);
+				contourFinder5.findContours(filtered5, minAreaC, maxAreaC, 5, false, true);
+				contourFinder6.findContours(filtered6, minAreaC, maxAreaC, 5, false, true);
+				contourFinder7.findContours(filtered7, minAreaC, maxAreaC, 5, false, true);
+
+				
 
 				//PRUEBA DE LLEVAR IDs
 				/*maxArea/2
@@ -449,29 +574,66 @@ void ofApp::update(){
 				m.clear();
 			}
 
-			//LUMINOSIDAD
+			//LUMINOSIDAD  //KICK
 			if (contourFinder4.nBlobs != 0) {
-				int num = contourFinder4.blobs.size();
-				//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
+				if (lightSent == false) {
+					lightSent = true;
+					int num = contourFinder4.blobs.size();
+					//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
 
-				float a;
-				m.setAddress("/light");
-				m.addIntArg(num);
+					float a;
+					m.setAddress("/light");
+					m.addIntArg(num);
 
-				for (int i = 0; i < contourFinder4.nBlobs; i++) {
-					a = ofMap(contourFinder4.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
-					posX = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().x, 0, camWidth, 0, 1);
-					posY = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().y, 0, camHeight, 0, 1);
-					string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
-					m.addStringArg(s);
+					for (int i = 0; i < contourFinder4.nBlobs; i++) {
+						a = ofMap(contourFinder4.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
+						posX = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().x, 0, camWidth, 0, 1);
+						posY = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().y, 0, camHeight, 0, 1);
+						string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+						m.addStringArg(s);
+					}
+
+					senderOSC.sendMessage(m);
+					//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
+					m.clear();
 				}
-
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
-				m.clear();
 			}
 			else {
+				lightSent = false;
 				m.setAddress("/light");
+				m.addIntArg(0);
+				senderOSC.sendMessage(m);
+				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+				m.clear();
+			}
+
+			//LUMINOSIDAD  //CAJA
+			if (contourFinder8.nBlobs != 0) {
+				if (lightSent2 == false) {
+					lightSent2 = true;
+					int num = contourFinder4.blobs.size();
+					//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
+
+					float a;
+					m.setAddress("/lightSmall");
+					m.addIntArg(num);
+
+					for (int i = 0; i < contourFinder4.nBlobs; i++) {
+						a = ofMap(contourFinder4.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
+						posX = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().x, 0, camWidth, 0, 1);
+						posY = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().y, 0, camHeight, 0, 1);
+						string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+						m.addStringArg(s);
+					}
+
+					senderOSC.sendMessage(m);
+					//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
+					m.clear();
+				}
+			}
+			else {
+				lightSent2 = false;
+				m.setAddress("/lightSmall");
 				m.addIntArg(0);
 				senderOSC.sendMessage(m);
 				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
@@ -481,12 +643,12 @@ void ofApp::update(){
 			//LUMINOSIDAD 2
 			if (contourFinder5.nBlobs != 0) {
 				if (lightSent==false) {
-					lightSent = true;
+					//lightSent = true;
 					int num = contourFinder5.blobs.size();
-					//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
+					ofLog(OF_LOG_NOTICE, "OSC circ grande " + ofToString(num));
 
 					float a;
-					m.setAddress("/lightSmall");
+					m.setAddress("/circleLeft");
 					m.addIntArg(num);
 
 					for (int i = 0; i < contourFinder5.nBlobs; i++) {
@@ -503,12 +665,56 @@ void ofApp::update(){
 				}
 			}
 			else {
-				lightSent = false;
-				m.setAddress("/lightSmall");
+				//lightSent = false;
+				m.setAddress("/circleLeft");
 				m.addIntArg(0);
 				senderOSC.sendMessage(m);
 				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
 				m.clear();
+			}
+
+			//CIRCULO IZQDA
+			if (contourFinderCircleL.nBlobs != 0) {
+				int num = contourFinderCircleL.blobs.size();
+				//ofLog(OF_LOG_NOTICE, "BLOBSIZQDA " + ofToString(num));
+			}
+			else {
+				//ofLog(OF_LOG_NOTICE, "NOBLOBSIZ ");
+				//lightSent = false;
+				//m.setAddress("/lightSmall");
+				//m.addIntArg(0);
+				//senderOSC.sendMessage(m);
+				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+				//m.clear();
+			}
+			//CIRCULO CENTRO
+			if (contourFinderCircleC.nBlobs != 0) {
+				int num = contourFinderCircleC.blobs.size();
+				//ofLog(OF_LOG_NOTICE, "BLOBSCENTRO " + ofToString(num));
+			}
+			else {
+				//ofLog(OF_LOG_NOTICE, "NOBLOBSCENTRO ");
+				//lightSent = false;
+				//m.setAddress("/lightSmall");
+				//m.addIntArg(0);
+				//senderOSC.sendMessage(m);
+				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+				//m.clear();
+			}
+
+			//CIRCULO DCHA
+			if (contourFinderCircleR.nBlobs != 0) {
+				int num = contourFinderCircleR.blobs.size();
+				//ofLog(OF_LOG_NOTICE, "BLOBSDCHA " + ofToString(num));
+			}
+			else {
+				//ofLog(OF_LOG_NOTICE, "NOBLOBSDCHA " );
+				//lightSent = false;
+				//m.setAddress("/lightSmall");
+				//m.addIntArg(0);
+				//senderOSC.sendMessage(m);
+				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+				//m.clear();
 			}
 
 		}
@@ -567,9 +773,23 @@ void ofApp::draw(){
 		contourFinder4.draw(camWidthReduced * 3, camHeightReduced * 2, camWidthReduced, camHeightReduced);
 
 		//cuarta fila
-		circleCentreROI.draw(camWidthReduced, camHeightReduced * 3, ROIx, ROIy); //prueba de mascaras con imagen
-		circleCentreROI.draw(camWidthReduced + ROIx, camHeightReduced * 3, ROIx, ROIy); //prueba de mascaras con imagen
-		circleCentreROI.draw(camWidthReduced + ROIx*2, camHeightReduced * 3, ROIx, ROIy); //prueba de mascaras con imagen
+		circleLeftROI.draw(camWidthReduced, camHeightReduced * 3, ROIx, ROIy); 
+		circleCentreROI.draw(camWidthReduced + ROIx, camHeightReduced * 3, ROIx, ROIy); 
+		circleRightROI.draw(camWidthReduced + ROIx*2, camHeightReduced * 3, ROIx, ROIy); 
+
+		contourFinderCircleL.draw(camWidthReduced, camHeightReduced * 3, ROIx, ROIy);
+		contourFinderCircleC.draw(camWidthReduced + ROIx, camHeightReduced * 3, ROIx, ROIy);
+		contourFinderCircleR.draw(camWidthReduced + ROIx * 2, camHeightReduced * 3, ROIx, ROIy);
+
+		//cirLB.draw(camWidthReduced*2, camHeightReduced * 3, ROIx, ROIy);
+		//cirCB.draw(camWidthReduced*2 + ROIx, camHeightReduced * 3, ROIx, ROIy);
+		//cirRB.draw(camWidthReduced*2 + ROIx * 2, camHeightReduced * 3, ROIx, ROIy);
+		filtered5.draw(camWidthReduced, camHeightReduced * 3, camWidthReduced, camHeightReduced);
+		contourFinder5.draw(camWidthReduced, camHeightReduced * 3, camWidthReduced, camHeightReduced);
+		filtered6.draw(camWidthReduced * 2, camHeightReduced * 3, camWidthReduced, camHeightReduced);
+		contourFinder6.draw(camWidthReduced * 2, camHeightReduced * 3, camWidthReduced, camHeightReduced);
+		filtered7.draw(camWidthReduced * 3, camHeightReduced * 3, camWidthReduced, camHeightReduced);
+		contourFinder7.draw(camWidthReduced * 3, camHeightReduced * 3, camWidthReduced, camHeightReduced);
 		
 		//draw  circles for found blobs
 		for (int i = 0; i < contourFinder.nBlobs; i++) {
@@ -752,15 +972,36 @@ void ofApp::keyPressed(int key){
 		hueDifY--;
 		ofLog(OF_LOG_NOTICE, "hueDifY " + ofToString(hueDifY));
 	}
-	if (key == 't' || key == 'T')
+	if (key == 'x' || key == 'X')
+	{
+		margen--;
+		ofLog(OF_LOG_NOTICE, "margen " + ofToString(margen));
+	}
+	if (key == 'z' || key == 'Z')
+	{
+		margen++;
+		ofLog(OF_LOG_NOTICE, "margen " + ofToString(margen));
+	}
+	if (key == 'v' || key == 'V')
 	{
 		radioCirculo++;
 		ofLog(OF_LOG_NOTICE, "radioCirculo " + ofToString(radioCirculo));
 	}
-	if (key == 'g' || key == 'G')
+	if (key == 'c' || key == 'C')
 	{
 		radioCirculo--;
 		ofLog(OF_LOG_NOTICE, "radioCirculo " + ofToString(radioCirculo));
+	}
+
+	if (key == 'b' || key == 'B')
+	{
+		maxAreaC=maxAreaC+1000;
+		ofLog(OF_LOG_NOTICE, "maxAreaC " + ofToString(maxAreaC));
+	}
+	if (key == 'n' || key == 'N')
+	{
+		maxAreaC = maxAreaC - 1000;
+		ofLog(OF_LOG_NOTICE, "maxAreaC " + ofToString(maxAreaC));
 	}
 	switch (key) {
 	case ' ':

@@ -1,28 +1,38 @@
-﻿  ofApp.cpp
-C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(326,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(331,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(912,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(913,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(914,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(915,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(38,13): warning C4996: 'ofVideoGrabber::initGrabber': Use setup instead
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(271,41): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(311,42): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(351,42): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(390,42): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(421,43): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(507,4): warning C4996: 'ofCircle': Use ofDrawCircle instead
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(514,4): warning C4996: 'ofCircle': Use ofDrawCircle instead
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(521,4): warning C4996: 'ofCircle': Use ofDrawCircle instead
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(542,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(546,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(550,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
-C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(555,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
+﻿  main.cpp
+  ofApp.cpp
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(326,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\ofApp.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(331,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\ofApp.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(912,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\ofApp.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(913,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\ofApp.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(914,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\ofApp.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(915,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\ofApp.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(326,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\main.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(331,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\main.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(912,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\main.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(913,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\main.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(914,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\main.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\libs\openFrameworks\math\ofMatrix4x4.h(915,12): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos (compilando archivo de origen src\main.cpp)
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(42,13): warning C4996: 'ofVideoGrabber::initGrabber': Use setup instead
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(460,41): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(500,42): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(540,42): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(581,43): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(614,43): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(647,43): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(678,48): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(692,48): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(707,48): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(799,4): warning C4996: 'ofCircle': Use ofDrawCircle instead
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(806,4): warning C4996: 'ofCircle': Use ofDrawCircle instead
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(813,4): warning C4996: 'ofCircle': Use ofDrawCircle instead
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(834,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(838,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(842,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
+C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\src\ofApp.cpp(847,3): warning C4996: 'ofCircle': Use ofDrawCircle instead
      Creando biblioteca bin\RGBdB.lib y objeto bin\RGBdB.exp
   Generando código
-  0 of 633 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 633 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Generación de código finalizada
   RGBdB.vcxproj -> C:\Documentos\of_v0.10.1_vs2017_release\apps\myApps\JustWavesOF\bin\RGBdB.exe
   

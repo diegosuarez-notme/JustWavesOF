@@ -64,24 +64,33 @@ public:
 	ofxCvGrayscaleImage imgMaskTrigger;
 	ofxCvColorImage imgMaskColor;
 	ofxCvColorImage			rgb,hsb,colorImg,colorImgReduced,greyImage;
-	ofxCvGrayscaleImage 	hue,sat,bri,filtered, filtered2, filtered3, filtered4, filtered5;
+	ofxCvGrayscaleImage 	hue,sat,bri,filtered, filtered2, filtered3, filtered4;
+	ofxCvGrayscaleImage		filtered5, filtered6, filtered7,filtered8;
 	ofxCvGrayscaleImage 	grayBg, grayImage;
 	ofxCvGrayscaleImage 	grayDiff;
 	ofxCvGrayscaleImage 	circleCentreROI,circleLeftROI,circleRightROI;
+	ofxCvGrayscaleImage 	cirCB, cirLB, cirRB; 
+	ofxCvGrayscaleImage 	circleCentreBROI, circleLeftBROI, circleRightBROI;
+	ofxCvGrayscaleImage		circleGeneralROI;
 	ofxCvContourFinder 	contourFinder, contourFinder2, contourFinder3, contourFinder4, contourFinder5;
+	ofxCvContourFinder 	contourFinder6, contourFinder7, contourFinder8;
+	ofxCvContourFinder 	contourFinderCircleL, contourFinderCircleC, contourFinderCircleR;
 	ofFbo fboTrigger;   //mascara para triggers
-	int				thresholdM;
 
-	int 				findHue,findHue1, findHue2, findHue3, findhueRalto, threshold;
-	int margen;
-	int					hueDifC, hueDifM, hueDifY;
-	int 				findBright, findSat;
-	bool				bLearnBakground;
-	bool  lightSent;
-	int minArea, maxArea;
-	int maxBright,minBright;
-	int ROIx, ROIy;
-	int radioCirculo; //radio del circulo que servira de mascara
+	// Variables de control
+	int		thresholdM;
+	int		findHue,findHue1, findHue2, findHue3, findhueRalto, threshold;
+	int		margen; //margen de mascara rectangular
+	int		hueDifC, hueDifM, hueDifY;
+	int		findBright, findSat;
+	bool	bLearnBakground;
+	bool	lightSent;
+	bool	lightSent2;
+	int		minArea, maxArea;
+	int		minAreaC, maxAreaC;
+	int		maxBright,minBright;
+	int		ROIx, ROIy;
+	int		radioCirculo; //radio del circulo que servira de mascara
 
 	//OSC
 	ofxOscSender senderOSC;

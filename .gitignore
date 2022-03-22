@@ -34,6 +34,7 @@
 #Debug
 *.ilk
 *.pdb
+*.ipdb
 
 #Folders
 .vs/
