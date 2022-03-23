@@ -10,11 +10,18 @@ OSCFunc.trace(false)
 
 OK EMPECEMOS
 
-
 (
 //n = NetAddr.new("127.0.0.1", 57120);
 t=TempoClock.new;
 t.tempo=120/60;
+
+//n = NetAddr.new("127.0.0.1", 7002);    // create the NetAddr
+b = NetAddr.new("127.0.0.1", 7001);    // create the NetAddr
+b.sendMsg("/composition/tempocontroller/tempo", LinLin.ar(120, 20, 500, dstlo: 0, dsthi: 1));
+b.sendMsg("/composition/tempocontroller/resync", 1);
+b.sendMsg("/composition/tempocontroller/resync", 0);
+
+
 
 ~freqR=[0,0,0,0,0,0,0,0,0,0];
 ~freqG=[0,0,0,0,0,0,0,0,0,0];
@@ -40,7 +47,7 @@ t.tempo=120/60;
 ~notasBlue=[200,237.84,299.664,599.328,0,0,0,0,0,0];
 
 
-~notasBlue=[200,400,800,1800,0,0,0,0,0,0];
+~notasBlue=[200,400,800,1800,2000,0,0,0,0,0];
 
 
 ~notasRed=[100,118.92,149.832,158.74,0,0,0,0,0,0];
@@ -56,7 +63,7 @@ t.tempo=120/60;
 ~oscArray=OSCdef(\redStatic,{|msg|
 		var tam=msg[1];
 
-	var x1,y,modificaX;
+	var x1,y,modificaX,ar;
 	//msg.postln;
 	//tam.postln;
 		if(tam>0){
@@ -65,31 +72,33 @@ t.tempo=120/60;
 				#aX,aY,area=x.asString.split($, );
 
 					y=aY.asFloat;
-					x1=aX.asFloat;
-				//x1.postln;
-					//~areaR[i-2]=(area.asFloat)-0.5;
+				x1=LinLin.kr(aX.asFloat,0,1,-1,1);
+				ar=LinLin.kr(area.asFloat,0.004,0.12,0.6,1.5);   //revisar esto en OF
 
-				if((x1>0)&&(x1<0.33)){modificaX=0.75;};
-				if((x1>0.33)&&(x1<0.66)){modificaX=1;};
-				if(x1>0.66){modificaX=1.25;};
+				modificaX=1;
 
-				if((y>0)&&(y<0.25)){~freqR[i-2]=~notasRed[3]*modificaX;};
-				if((y>0.25)&&(y<0.5)){~freqR[i-2]=~notasRed[2]*modificaX;};
-				if((y>0.5)&&(y<0.75)){~freqR[i-2]=~notasRed[1]*modificaX;};
-				if(y>0.75){~freqR[i-2]=~notasRed[0]*modificaX};
+				//if((x1>0)&&(x1<0.33)){modificaX=0.75;};
+				//if((x1>0.33)&&(x1<0.66)){modificaX=1;};
+				//if(x1>0.66){modificaX=1.25;};
+
+				if((y>0)&&(y<0.2)){~freqR[i-2]=~notasRed[4]*modificaX;};
+				if((y>0.2)&&(y<0.4)){~freqR[i-2]=~notasRed[3]*modificaX;};
+				if((y>0.4)&&(y<0.6)){~freqR[i-2]=~notasRed[2]*modificaX;};
+				if((y>0.6)&&(y<0.8)){~freqR[i-2]=~notasRed[1]*modificaX;};
+				if(y>0.8){~freqR[i-2]=~notasRed[0]*modificaX};
 			};
 		};
 
-		Ndef(\r0).set(\f1,(~freqR[0]),\a1,1);//,\revTime,~areaR[0]);
-		Ndef(\r1).set(\f1,(~freqR[1]),\a1,1);//,\revTime,~areaR[1]);
-		Ndef(\r2).set(\f1,(~freqR[2]),\a1,1);
-		Ndef(\r3).set(\f1,(~freqR[3]),\a1,1);
-		Ndef(\r4).set(\f1,(~freqR[4]),\a1,1);
-		Ndef(\r5).set(\f1,(~freqR[5]),\a1,1);
-		Ndef(\r6).set(\f1,(~freqR[6]),\a1,1);
-		Ndef(\r7).set(\f1,(~freqR[7]),\a1,1);
-		Ndef(\r8).set(\f1,(~freqR[8]),\a1,1);
-		Ndef(\r9).set(\f1,(~freqR[9]),\a1,1);
+		Ndef(\r0).set(\f1,(~freqR[0]),\a1,1,\pan,x1,\harmDist,ar);//,\revTime,~areaR[0]);
+		Ndef(\r1).set(\f1,(~freqR[1]),\a1,1,\pan,x1,\harmDist,ar);//,\revTime,~areaR[1]);
+		Ndef(\r2).set(\f1,(~freqR[2]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\r3).set(\f1,(~freqR[3]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\r4).set(\f1,(~freqR[4]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\r5).set(\f1,(~freqR[5]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\r6).set(\f1,(~freqR[6]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\r7).set(\f1,(~freqR[7]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\r8).set(\f1,(~freqR[8]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\r9).set(\f1,(~freqR[9]),\a1,1,\pan,x1,\harmDist,ar);
 			//Ndef(\r0).set(\a1,0.2/tam,\a2,0.2/tam,\a3,0.2/tam);
 
 			msg.postln;
@@ -110,13 +119,12 @@ t.tempo=120/60;
 		}
 	},'/red',n);
 
-
 //GREEN OSC
 
 ~oscArray=OSCdef(\greenStatic,{|msg|
 		var tam=msg[1];
 
-	var x1,y,modificaX;
+	var x1,y,modificaX,ar;
 	//msg.postln;
 	//tam.postln;
 		if(tam>0){
@@ -128,30 +136,33 @@ t.tempo=120/60;
 				#aX,aY,area=x.asString.split($, );
 
 					y=aY.asFloat;
-					x1=aX.asFloat;
-				//y.postln;
+				x1=LinLin.kr(aX.asFloat,0,1,-1,1);
+				ar=LinLin.kr(area.asFloat,0.004,0.12,0.6,1.8);   //revisar esto en OF
 
-					if((x1>0)&&(x1<=0.33)){modificaX=0.75;};
-				if((x1>0.33)&&(x1<=0.66)){modificaX=1;};
-				if(x1>0.66){modificaX=1.25;};
+				modificaX=1;
 
-				if((y>0)&&(y<0.25)){~freqG[i-2]=~notasGreen[3]*modificaX;};
-				if((y>0.25)&&(y<0.5)){~freqG[i-2]=~notasGreen[2]*modificaX;};
-				if((y>0.5)&&(y<0.75)){~freqG[i-2]=~notasGreen[1]*modificaX;};
-				if(y>0.75){~freqG[i-2]=~notasGreen[0]*modificaX;};
+				//if((x1>0)&&(x1<=0.33)){modificaX=0.75;};
+				//if((x1>0.33)&&(x1<=0.66)){modificaX=1;};
+				//if(x1>0.66){modificaX=1.25;};
+
+				if((y>0)&&(y<0.2)){~freqG[i-2]=~notasGreen[4]*modificaX;};
+				if((y>0.2)&&(y<0.4)){~freqG[i-2]=~notasGreen[3]*modificaX;};
+				if((y>0.4)&&(y<0.6)){~freqG[i-2]=~notasGreen[2]*modificaX;};
+				if((y>0.6)&&(y<0.8)){~freqG[i-2]=~notasGreen[1]*modificaX;};
+				if(y>0.8){~freqG[i-2]=~notasGreen[0]*modificaX;};
 			};
 		};
 
-		Ndef(\g0).set(\f1,(~freqG[0]),\a1,1);//,\revTime,~areaR[0]);
-		Ndef(\g1).set(\f1,(~freqG[1]),\a1,1);//,\revTime,~areaR[1]);
-		Ndef(\g2).set(\f1,(~freqG[2]),\a1,1);
-		Ndef(\g3).set(\f1,(~freqG[3]),\a1,1);
-		Ndef(\g4).set(\f1,(~freqG[4]),\a1,1);
-		Ndef(\g5).set(\f1,(~freqG[5]),\a1,1);
-		Ndef(\g6).set(\f1,(~freqG[6]),\a1,1);
-		Ndef(\g7).set(\f1,(~freqG[7]),\a1,1);
-		Ndef(\g8).set(\f1,(~freqG[8]),\a1,1);
-		Ndef(\g9).set(\f1,(~freqG[9]),\a1,1);
+		Ndef(\g0).set(\f1,(~freqG[0]),\a1,1,\pan,x1)://,\harmDist,ar);//,\revTime,~areaR[0]);
+		Ndef(\g1).set(\f1,(~freqG[1]),\a1,1,\pan,x1);//,\harmDist,ar);//,\revTime,~areaR[1]);
+		Ndef(\g2).set(\f1,(~freqG[2]),\a1,1,\pan,x1);//,\harmDist,ar);
+		Ndef(\g3).set(\f1,(~freqG[3]),\a1,1,\pan,x1);//,\harmDist,ar);
+		Ndef(\g4).set(\f1,(~freqG[4]),\a1,1,\pan,x1);//,\harmDist,ar);
+		Ndef(\g5).set(\f1,(~freqG[5]),\a1,1,\pan,x1);//,\harmDist,ar);
+		Ndef(\g6).set(\f1,(~freqG[6]),\a1,1,\pan,x1);//,\harmDist,ar);
+		Ndef(\g7).set(\f1,(~freqG[7]),\a1,1,\pan,x1);//,\harmDist,ar);
+		Ndef(\g8).set(\f1,(~freqG[8]),\a1,1,\pan,x1);//,\harmDist,ar);
+		Ndef(\g9).set(\f1,(~freqG[9]),\a1,1,\pan,x1);//,\harmDist,ar);
 			//Ndef(\r0).set(\a1,0.2/tam,\a2,0.2/tam,\a3,0.2/tam);
 
 			msg.postln;
@@ -179,7 +190,7 @@ t.tempo=120/60;
 ~oscArray=OSCdef(\blueStatic,{|msg|
 		var tam=msg[1];
 
-	var x1,y,modificaX;
+	var x1,y,modificaX,ar;
 	//msg.postln;
 	//tam.postln;
 		if(tam>0){
@@ -189,30 +200,33 @@ t.tempo=120/60;
 				#aX,aY,area=x.asString.split($, );
 
 					y=aY.asFloat;
-					x1=aX.asFloat;
-				//x1.postln;
-				//y.postln;
-				if((x1>0)&&(x1<0.33)){modificaX=0.75;};
-				if((x1>0.33)&&(x1<0.66)){modificaX=1;};
-				if(x1>0.66){modificaX=1.25;};
+				x1=LinLin.kr(aX.asFloat,0,1,-1,1);
+				ar=LinLin.kr(area.asFloat,0.004,0.12,0.6,2);   //revisar esto en OF
 
-				if((y>0)&&(y<0.25)){~freqB[i-2]=~notasBlue[3]*modificaX};
-				if((y>0.25)&&(y<0.5)){~freqB[i-2]=~notasBlue[2]*modificaX};
-				if((y>0.5)&&(y<0.75)){~freqB[i-2]=~notasBlue[1]*modificaX};
-				if(y>0.75){~freqB[i-2]=~notasBlue[0]*modificaX};
+				modificaX=1;
+
+				//if((x1>0)&&(x1<0.33)){modificaX=0.75;};
+				//if((x1>0.33)&&(x1<0.66)){modificaX=1;};
+				//if(x1>0.66){modificaX=1.25;};
+
+				if((y>0)&&(y<0.2)){~freqB[i-2]=~notasBlue[4]*modificaX};
+				if((y>0.2)&&(y<0.5)){~freqB[i-2]=~notasBlue[3]*modificaX};
+				if((y>0.4)&&(y<0.6)){~freqB[i-2]=~notasBlue[2]*modificaX};
+				if((y>0.6)&&(y<0.8)){~freqB[i-2]=~notasBlue[1]*modificaX};
+				if(y>0.8){~freqB[i-2]=~notasBlue[0]*modificaX};
 			};
 		};
 
-		Ndef(\b0).set(\f1,(~freqB[0]),\a1,1);//,\revTime,~areaR[0]);
-		Ndef(\b1).set(\f1,(~freqB[1]),\a1,1);//,\revTime,~areaR[1]);
-		Ndef(\b2).set(\f1,(~freqB[2]),\a1,1);
-		Ndef(\b3).set(\f1,(~freqB[3]),\a1,1);
-		Ndef(\b4).set(\f1,(~freqB[4]),\a1,1);
-		Ndef(\b5).set(\f1,(~freqB[5]),\a1,1);
-		Ndef(\b6).set(\f1,(~freqB[6]),\a1,1);
-		Ndef(\b7).set(\f1,(~freqB[7]),\a1,1);
-		Ndef(\b8).set(\f1,(~freqB[8]),\a1,1);
-		Ndef(\b9).set(\f1,(~freqB[9]),\a1,1);
+		Ndef(\b0).set(\f1,(~freqB[0]),\a1,1,\pan,x1,\harmDist,ar);//,\revTime,~areaR[0]);
+		Ndef(\b1).set(\f1,(~freqB[1]),\a1,1,\pan,x1,\harmDist,ar);//,\revTime,~areaR[1]);
+		Ndef(\b2).set(\f1,(~freqB[2]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\b3).set(\f1,(~freqB[3]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\b4).set(\f1,(~freqB[4]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\b5).set(\f1,(~freqB[5]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\b6).set(\f1,(~freqB[6]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\b7).set(\f1,(~freqB[7]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\b8).set(\f1,(~freqB[8]),\a1,1,\pan,x1,\harmDist,ar);
+		Ndef(\b9).set(\f1,(~freqB[9]),\a1,1,\pan,x1,\harmDist,ar);
 			//Ndef(\r0).set(\a1,0.2/tam,\a2,0.2/tam,\a3,0.2/tam);
 
 			msg.postln;
@@ -262,10 +276,13 @@ t.tempo=120/60;
 		var tam=msg[1];
 
 	var x1,y;
+	var area,aY,aX;
 	//msg.postln;
 	//tam.postln;
 		if(tam>0){
-		k=Synth(\caja).playN(-1);
+		#aX,aY,area=msg[2].asString.split($, );
+		k=Synth(\caja).set(\pan,aX);
+		k=Synth(\caja);
 		//k=Synth(\kick);
 
 
@@ -276,8 +293,51 @@ t.tempo=120/60;
 	},'/lightSmall',n);
 )
 
+//NOISE OSC
+(
+~oscArray=OSCdef(\noiseOSC,{|msg|
+		var tam=msg[1];
+
+	var x1,y;
+	//msg.postln;
+	//tam.postln;
+		if(tam>0){
+		k=Ndef(\noiseWave).set(\pan,msg[2],\freqC,msg[3]*1000+30);
+		k=Ndef(\noiseWave).playN();
+
+		//k=Synth(\kick);
 
 
+		msg.postln;
+		}{
+	       // msg.postln;
+		}
+	},'/noise',n);
+)
+
+(
+~oscArray=OSCdef(\bassOSC,{|msg|
+		var tam=msg[1];
+
+	var x1,y;
+	//msg.postln;
+	//tam.postln;
+		if(tam>0){
+		k=Synth(\bass).set(\note,rrand(30,90));
+		k=Synth(\bass);
+
+		//k=Synth(\kick);
+		msg.postln;
+		}{
+	      // msg.postln;
+		}
+	},'/circleLeft',n);
+)
+
+
+
+d = NdefMixer(s);
+d.parent.alwaysOnTop_(true);
 
 s.scope
 s.meter
@@ -287,11 +347,11 @@ s.meter
 (
 Ndef(\noiseWave).fadeTime=1;
 Ndef(\noiseWave,{
-	arg ampg=0.2,,freqC=1000,pan=0;
+	arg ampg=0.2,freqC=1000,pan=0;
 	var sig,sig2;
 	sig=WhiteNoise.ar(ampg,0);
 	sig=LPF.ar(sig,freqC);
-	sig=Pan2.ar(sig,0);
+	sig=Pan2.ar(sig,pan);
 	//sig=Pan2.ar(LPF.ar(WhiteNoise.ar(0.1)), pan);
 	//sig= DelayC.ar(sig,0.5,0.6,1,1);
 	sig=sig*SinOsc.kr(0.1,0.6)*SinOsc.kr(0.073,0.4);
@@ -300,7 +360,7 @@ Ndef(\noiseWave,{
 
 }).playN
 )
-Ndef(\noiseWave).set(\gate,1);
+Ndef(\noiseWave).set(\gate,0);
 Ndef(\noiseWave).fadeTime=5;
 {Pan2.ar(LPF.ar(WhiteNoise.ar(0.1)), 0)}.play
 
@@ -324,7 +384,7 @@ SynthDef(\kick,{
 )
 
 k=Synth(\kick);
-g=Synth(\grain);
+
 
 
 //CAJA
@@ -332,7 +392,7 @@ t=TempoClock.new;
 t.tempo=120/60;
 (
 SynthDef(\caja,{
-	arg freqA=2200,freqB=180,freqC=80,freqDur1=0.06,freqDur2=0.6,freqC1=9,freqC2=(-1),atk=0.001,rel=1.5,c1=4,c2=(-12),amp=1,pan=(0),out=0;
+	arg freqA=2200,freqB=180,freqC=80,freqDur1=0.06,freqDur2=0.6,freqC1=9,freqC2=(-1),atk=0.001,rel=1.5,c1=4,c2=(-12),amp=0.7,pan=(0),out=0;
 		var sig,env,freqSweep;
 				freqSweep=Env([freqA,freqB,freqC],[freqDur1,freqDur2],[freqC1,freqC2]).ar;
 				env=EnvGen.kr(Env.new([0,1,0],[atk,rel],[c1,c2]),doneAction:2);
@@ -375,7 +435,7 @@ g=Synth(\grain);
 (
 //BASS
 SynthDef(\bass,{
-	|note=30,amp=1.2,cutoff=500,decay=1 |
+	|note=30,amp=0.8,cutoff=500,decay=1 |
 	var env,audio;
 	env= EnvGen.kr(Env.new([0,1,0],[0,001,2],[3,-50]),doneAction:2);
 	audio=RLPF.ar(Saw.ar(note.midicps,amp),cutoff)*env;
@@ -404,7 +464,7 @@ SynthDef(\grain, { |out=(1), freq=50, amp=0.2|
 // Original code by nicolaariutti, tweaked by !ME
 (
 SynthDef(\organ, {
-	| midinote=300, gate=1, amp=0.05,dur=1 |
+	| midinote=300, gate=1, amp=0.09,dur=1 |
 	//var env = EnvGen.kr(Env.asr(0.1, 1, 0.1), gate, doneAction:2);
 	var env = EnvGen.kr(Env.triangle(dur), gate, doneAction:2);
 	var sig = VarSaw.ar(
@@ -418,7 +478,7 @@ c=Synth(\organ).set(\dur,1.5)
 // play a chord (farfisa-like sound)
 (
 
-[60, 64, 67].do ({
+[rrand(150,500), rrand(150,450), rrand(150,450)].do ({
 	| note |
 	Synth(\organ, [\midinote, note]);
 })
@@ -476,7 +536,7 @@ Pbind(
 //MADERA
 (
 SynthDef(\madera, {
-	|fs=20, t60=2, pitchy=2, amp=0.25, gate=1|    //fs 1 madera,   20 bambu, 60 xilofono  (t60 9 es una campana)
+	|fs=30, t60=9, pitchy=2, amp=0.25, gate=1|    //fs 1 madera,   20 bambu, 60 xilofono  (t60 9 es una campana)
 	var sig, exciter;
 	//exciter = Impulse.ar(0);
 	exciter = WhiteNoise.ar() * EnvGen.ar(Env.perc(0.001, 0.05), gate) * 0.25;
@@ -519,7 +579,7 @@ Pbind(*[
 	\note: Pseq(
 		[
 			//Pseq([35,47,51,41,41,36,42,41,44],inf)
-				Pseq([31,37,49,42,38,33,35,50],inf)
+				Pseq([31,23,43,32,0,0,35,50],inf)
 
 		],1),
 	\dur:Pseq([0.5],inf),
@@ -549,7 +609,7 @@ Pdef(\bass1).stop(t)
 Pdef(\kk).play(t)
 Pdef(\kk).stop(t)
 
-b = NetAddr.new("127.0.0.1", 7001);    // create the NetAddr
+
 b.sendMsg("/composition/layers/3/clips/1/connect", 1);    // send the application the message "hello" with the parameter "there"
 
 
@@ -577,7 +637,7 @@ s=Synth(\message);
 				\amp,0.5,
 				\instrument,\nada,
 	           \finish, Pfunc { |e| b.sendMsg("/composition/layers/3/clips/1/connect", 1)},
-				\dur,Pseq([4],inf);
+				\dur,Pseq([1],inf);
 			   )
             )
 
@@ -589,8 +649,8 @@ Pdef(\osc2).stop(t)
 (
 			Pdef(\osc1,Pbind(
 				\amp,0.5,
-				\instrument,\caja,
-	          // \finish, Pfunc { |e| b.sendMsg("/composition/layers/4/clips/1/connect", 1)},
+				\instrument,\nada,
+	           \finish, Pfunc { |e| b.sendMsg("/composition/layers/4/clips/1/connect", 1)},
 				\dur,Pseq([2],inf);
 			   )
             )

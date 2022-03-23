@@ -121,8 +121,8 @@ void ofApp::setup(){
 	circleLeftBROI.allocate(camWidthReduced, camHeightReduced);
 	circleCentreBROI.allocate(camWidthReduced, camHeightReduced);
 	circleRightBROI.allocate(camWidthReduced, camHeightReduced);
-	imgMaskTrigger.allocate(camWidthReduced, camHeightReduced);
-	imgMaskColor.allocate(camWidthReduced, camHeightReduced);
+	//imgMaskTrigger.allocate(camWidthReduced, camHeightReduced);
+	//imgMaskColor.allocate(camWidthReduced, camHeightReduced);
 	//colorTransparency.allocate(camWidthReduced, camHeightReduced,OF_IMAGE_COLOR_ALPHA);
 	grayImage.allocate(camWidthReduced, camHeightReduced);
 	filtered.allocate(camWidthReduced, camHeightReduced);
@@ -134,13 +134,13 @@ void ofApp::setup(){
 	filtered7.allocate(camWidthReduced, camHeightReduced);
 	filtered8.allocate(camWidthReduced, camHeightReduced);
 	
-
+	//CONTROLES
 	bLearnBakground = true;
 	thresholdM = 100;
 	minArea = 50;
 	maxArea = camWidthReduced*camHeightReduced;//(camWidth * camHeight)/20;
-	minAreaC = 50;
-	maxAreaC = ROIx * ROIy; //mejorar a circulo
+	minAreaC = 30;
+	maxAreaC = 1500;// ROIx* ROIy; //mejorar a circulo
 	threshold = 20;
 	hueDifC = 15;
 	hueDifM = 15;
@@ -152,8 +152,15 @@ void ofApp::setup(){
 	findHue3 = 116;		//b
 	lightSent = false;
 	lightSent2 = false;
-	maxBright = 220;
+	bassSent = false;
+	maxBright = 250;
 	minBright = 101;
+	cirLisActive = false;
+	cirCisActive = false; 
+	cirRisActive = false;
+	numBlobsValues = 0;
+
+
 						
 	//SPOUT
 	senderSPOUT.init("2");
@@ -209,8 +216,8 @@ void ofApp::update(){
 			//FIND COLORS
 			//copy webcam pixels to rgb image
 			rgb= colorImgReduced;
-			imgMaskColor = rgb;
-			imgMaskColor.getTexture().setAlphaMask(fboTrigger.getTexture());
+			//imgMaskColor = rgb;
+			//imgMaskColor.getTexture().setAlphaMask(fboTrigger.getTexture());
 			
 			if (strcmp(PIEZA, "Color") == 0) {//pecera   se puede quitar para rgbdb y just waves
 
@@ -222,6 +229,7 @@ void ofApp::update(){
 				hsb.convertRgbToHsv();
 				//store the three channels as grayscale images
 				hsb.convertToGrayscalePlanarImages(hue, sat, bri);
+
 
 				//Circulo izqda
 				circleLeftBROI.resetROI();
@@ -246,14 +254,15 @@ void ofApp::update(){
 				
 
 				//Mascaras
-				imgMaskTrigger = imgMaskColor;
-				imgMaskTrigger.getTexture().setAlphaMask(fboTrigger.getTexture());
+				//imgMaskTrigger = imgMaskColor;
+				//imgMaskTrigger.getTexture().setAlphaMask(fboTrigger.getTexture());
 
 				//threshold of hue
 				//hue.threshold(threshold);
-				float margen1 = 10;
+				//float margen1 = 10;
 				//filter image based on the hue value were looking for
-				int j = 0;
+
+				
 				for (int i = 0; i < camWidthReduced*(camHeightReduced); i++) {
 					//filtered.getPixels()[i] = (ofInRange(hue.getPixels()[i], findHue1 - hueDifC, findHue1 + hueDifC) && ofInRange(sat.getPixels()[i], 100,255)) ? 255 : 0;  //findhue for picked colors
 					filtered.getPixels()[i] = ((ofInRange(hue.getPixels()[i], findHue - threshold, findHue + threshold) || ofInRange(hue.getPixels()[i], findhueRalto - threshold, findhueRalto + threshold)) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;  //CYAN
@@ -277,7 +286,7 @@ void ofApp::update(){
 					//filtered 8 caja
 					if (i % camWidthReduced < margen || i % camWidthReduced > camWidthReduced - margen || i / camWidthReduced < margen || i / camWidthReduced >camHeightReduced - margen) {
 						//filtered4.getPixels()[i] = 255;
-						filtered8.getPixels()[i] = ((ofInRange(hue.getPixels()[i], findHue - threshold, findHue + threshold) && ofInRange(bri.getPixels()[i], minBright, maxBright) && ofInRange(sat.getPixels()[i], 60, 255))) ? 255 : 0;
+						filtered8.getPixels()[i] = ((ofInRange(hue.getPixels()[i], findHue - threshold, findHue + threshold) || ofInRange(hue.getPixels()[i], findhueRalto - threshold, findhueRalto + threshold)) && ofInRange(bri.getPixels()[i], 130, 255) && ofInRange(sat.getPixels()[i], 60, 255)) ? 255 : 0;
 
 						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
 
@@ -290,7 +299,7 @@ void ofApp::update(){
 					//filtered 5 circulo izqda
 					float res = sqrt(pow(i % camWidthReduced - (ROIx/2), 2) + pow((int)i / camWidthReduced - ROIy / 2, 2));
 					if (res < radioCirculo) {
-						filtered5.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) ? 255 : 0;
+						filtered5.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) && ofInRange(sat.getPixels()[i], 60, 255) ? 255 : 0;
 
 						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
 
@@ -303,7 +312,7 @@ void ofApp::update(){
 					//filtered 6 circulo centro
 					res = sqrt(pow(i % camWidthReduced - (ROIx+ROIx / 2), 2) + pow((int)i / camWidthReduced - ROIy / 2, 2));
 					if (res < radioCirculo) {
-						filtered6.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) ? 255 : 0;
+						filtered6.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) && ofInRange(sat.getPixels()[i], 60, 255) ? 255 : 0;
 
 						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
 
@@ -316,7 +325,7 @@ void ofApp::update(){
 					//filtered 7 circulo dcha
 					res = sqrt(pow(i % camWidthReduced - (ROIx*2+ROIx/2), 2) + pow((int)i / camWidthReduced - ROIy / 2, 2));
 					if (res < radioCirculo) {
-						filtered7.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) ? 255 : 0;
+						filtered7.getPixels()[i] = ofInRange(bri.getPixels()[i], 110, 255) && ofInRange(sat.getPixels()[i], 60, 255) ? 255 : 0;
 
 						//ofLog(OF_LOG_NOTICE, "NEGRO :" );
 
@@ -373,7 +382,9 @@ void ofApp::update(){
 						circleRightROI.getPixels()[i] = ofInRange(circleRightROI.getPixels()[i], 110, 255) ? 255 : 0;
 					}
 				}*/
-				//filtered4.getTexture().setAlphaMask(fboTrigger.getTexture());
+				
+
+
 				filtered.flagImageChanged();
 				filtered2.flagImageChanged();
 				filtered3.flagImageChanged();
@@ -381,24 +392,60 @@ void ofApp::update(){
 				filtered5.flagImageChanged();
 				filtered6.flagImageChanged();
 				filtered7.flagImageChanged();
-				filtered8.flagImageChanged();
+				filtered8.flagImageChanged(); 
 				//circleLeftROI.flagImageChanged();
 				//circleCentreROI.flagImageChanged();
 				//circleRightROI.flagImageChanged();
 
 				//run the contour finder on the filtered image to find blobs with a certain hue
-				contourFinder.findContours(filtered, minArea, maxArea , 10, false, true);
-				contourFinder2.findContours(filtered2, minArea, maxArea, 10, false, true);
-				contourFinder3.findContours(filtered3, minArea, maxArea, 10, false, true);
-				contourFinder4.findContours(filtered4, maxArea/3, maxArea, 1, false, true);
-				contourFinder8.findContours(filtered8, maxArea/3, maxArea, 5, false, true);
+				contourFinder.findContours(filtered, minArea, 15000 , 10, false, true);   //R
+				contourFinder2.findContours(filtered2, minArea, maxArea, 10, false, true);		//G
+				contourFinder3.findContours(filtered3, minArea, maxArea, 10, false, true);		//B
+				contourFinder4.findContours(filtered4, maxArea/3, maxArea, 1, false, true); //kick
+				contourFinder8.findContours(filtered8, 500, maxArea, 2, false, true); //caja
 
 				//contourFinderCircleL.findContours(circleLeftROI, 1, 15000, 6, false, true);
 				//contourFinderCircleC.findContours(circleCentreROI, minAreaC, maxAreaC, 6, false, true);
 				//contourFinderCircleR.findContours(circleRightROI, 1, maxAreaC, 6, false, true);
-				contourFinder5.findContours(filtered5, minAreaC, maxAreaC, 5, false, true);
-				contourFinder6.findContours(filtered6, minAreaC, maxAreaC, 5, false, true);
-				contourFinder7.findContours(filtered7, minAreaC, maxAreaC, 5, false, true);
+				if (cirLisActive) {
+					contourFinder5.findContours(filtered5, minAreaC, maxAreaC, 1, false, true);
+				}
+				if (cirCisActive) {
+					contourFinder6.findContours(filtered6, minAreaC, maxAreaC, 3, false, true);
+				}
+				if (cirRisActive) {
+					contourFinder7.findContours(filtered7, minAreaC, maxAreaC, 3, false, true);
+				}
+
+				numBlobsValues = 0;
+				numBlobsSumaX = 0;
+				numBlobsSumaY = 0;
+				if (contourFinder.nBlobs != 0) {
+					//numBlobsValues = numBlobsValues+ contourFinder.blobs.size();
+					for (int i = 0; i < contourFinder.nBlobs; i++) {
+						numBlobsSumaX = numBlobsSumaX + contourFinder.blobs[i].boundingRect.getCenter().x; 
+						numBlobsSumaY = numBlobsSumaY + contourFinder.blobs[i].boundingRect.getCenter().y;
+						numBlobsValues++;
+					}
+				}
+				if (contourFinder2.nBlobs != 0) {
+					//numBlobsValues = numBlobsValues+ contourFinder.blobs.size();
+					for (int i = 0; i < contourFinder2.nBlobs; i++) {
+						numBlobsSumaX = numBlobsSumaX + contourFinder2.blobs[i].boundingRect.getCenter().x;
+						numBlobsSumaY = numBlobsSumaY + contourFinder2.blobs[i].boundingRect.getCenter().y;
+						numBlobsValues++;
+					}
+				}
+				if (contourFinder3.nBlobs != 0) {
+					//numBlobsValues = numBlobsValues+ contourFinder.blobs.size();
+					for (int i = 0; i < contourFinder3.nBlobs; i++) {
+						numBlobsSumaX = numBlobsSumaX + contourFinder3.blobs[i].boundingRect.getCenter().x;
+						numBlobsSumaY = numBlobsSumaY + contourFinder3.blobs[i].boundingRect.getCenter().y;
+						numBlobsValues++;
+					}
+				}
+
+				
 
 				
 
@@ -437,287 +484,326 @@ void ofApp::update(){
 
 
 		//////// /OSC SEND
-		
-
-		if (strcmp(PIEZA, "Luminosidad") == 0) {
-			if (contourFinder.nBlobs != 0) {
-				//posX = ofMap(contourFinder.blobs[0].boundingRect.getCenter().x, 0, 640, 0, 1);
-				//posY = ofMap(contourFinder.blobs[0].boundingRect.getCenter().y, 0, 480, 0, 1);
-				float x = ofMap(posX, 0, camWidth, 0, 1);
-				float y = ofMap(posY, 0, camHeight, 0, 1);
-				float a = ofMap(blackArea, minArea, maxArea, 0, 1);
-				float n = ofMap(numBlobs, 0, 80, 0, 100);
-				ofLog(OF_LOG_NOTICE, "OSC NumBlobs " + ofToString(numBlobs) + " Area " + ofToString(a) + "posX " + ofToString(x)+" posY " + ofToString(y));
-				sendOSCMessage("/black/posX", x);
-				sendOSCMessage("/black/posY", y);
-				sendOSCMessage("/black/numBlobs", n);
-				sendOSCMessage("/black/area", a);
-			}
+	
+		//NOISE
+		// 
+		if (numBlobsValues > 0) {
+			float mediaX = ofMap(numBlobsSumaX / numBlobsValues, 0, camWidthReduced, -1, 1);
+			float mediaY = ofMap(numBlobsSumaY / numBlobsValues, 0, camHeightReduced, 1, 0);
+			m.setAddress("/noise");
+			m.addIntArg(numBlobsValues);
+			m.addFloatArg(mediaX);
+			m.addFloatArg(mediaY);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC red " + ofToString(m));
+			m.clear();
 		}
 		else {
-			//RED
-			if (contourFinder.nBlobs != 0) {
-				int num = contourFinder.blobs.size();
-				//ofLog(OF_LOG_NOTICE, "OSC red NUM " + ofToString(num));
+			m.setAddress("/noise");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC red 0 " + ofToString(m));
+			m.clear();
+		}
+		//RED
+		if (contourFinder.nBlobs != 0) {
+			int num = contourFinder.blobs.size();
+			//ofLog(OF_LOG_NOTICE, "OSC red NUM " + ofToString(num));
 				
-				float a;
-				m.setAddress("/red");
-				m.addIntArg(num);
-				int cont = 0;
-				for (int i = 0; i < contourFinder.nBlobs;i++) {
-					a = ofMap(contourFinder.blobs[i].boundingRect.getArea(),minArea,maxArea,0,1);
-					posX = ofMap(contourFinder.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, 0, 1);
-					posY = ofMap(contourFinder.blobs[i].boundingRect.getCenter().y, 0, camHeightReduced, 0, 1);
-					string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
-					m.addStringArg(s);
-					cont++;
-				}
-				if (cont < 10) {
-					for (int i = cont; i < 10; i++) {
+			float a;
+			m.setAddress("/red");
+			m.addIntArg(num);
+			int cont = 0;
+			for (int i = 0; i < contourFinder.nBlobs;i++) {
+				a = ofMap(contourFinder.blobs[i].boundingRect.getArea(),minArea,maxArea,0,1);
+				posX = ofMap(contourFinder.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, 0, 1);
+				posY = ofMap(contourFinder.blobs[i].boundingRect.getCenter().y, 0, camHeightReduced, 0, 1);
+				string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+				m.addStringArg(s);
+				cont++;
+			}
+			if (cont < 10) {
+				for (int i = cont; i < 10; i++) {
 
-						string s = ofToString(0) + "," + ofToString(0) + "," + ofToString(0);
-						m.addStringArg(s);
+					string s = ofToString(0) + "," + ofToString(0) + "," + ofToString(0);
+					m.addStringArg(s);
 						
-					}
-
 				}
+
+			}
 				
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC red " + ofToString(m));
-				m.clear();
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC red " + ofToString(m));
+			m.clear();
+		}
+		else {
+			m.setAddress("/red");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC red 0 " + ofToString(m));
+			m.clear();
+		}
+
+
+		//GREEN
+		if (contourFinder2.nBlobs != 0) {
+			int num = contourFinder2.blobs.size();
+			//ofLog(OF_LOG_NOTICE, "OSC green NUM " + ofToString(num));
+
+			float a;
+			m.setAddress("/green");
+			m.addIntArg(num);
+			int cont = 0;
+			for (int i = 0; i < contourFinder2.nBlobs; i++) {
+				a = ofMap(contourFinder2.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
+				posX = ofMap(contourFinder2.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, 0, 1);
+				posY = ofMap(contourFinder2.blobs[i].boundingRect.getCenter().y, 0, camHeightReduced, 0, 1);
+				string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+				m.addStringArg(s);
+				cont++;
 			}
-			else {
-				m.setAddress("/red");
-				m.addIntArg(0);
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC red 0 " + ofToString(m));
-				m.clear();
-			}
+			if (cont < 10) {
+				for (int i = cont; i < 10; i++) {
 
-
-			//GREEN
-			if (contourFinder2.nBlobs != 0) {
-				int num = contourFinder2.blobs.size();
-				//ofLog(OF_LOG_NOTICE, "OSC green NUM " + ofToString(num));
-
-				float a;
-				m.setAddress("/green");
-				m.addIntArg(num);
-				int cont = 0;
-				for (int i = 0; i < contourFinder2.nBlobs; i++) {
-					a = ofMap(contourFinder2.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
-					posX = ofMap(contourFinder2.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, 0, 1);
-					posY = ofMap(contourFinder2.blobs[i].boundingRect.getCenter().y, 0, camHeightReduced, 0, 1);
-					string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+					string s = ofToString(0) + "," + ofToString(0) + "," + ofToString(0);
 					m.addStringArg(s);
-					cont++;
-				}
-				if (cont < 10) {
-					for (int i = cont; i < 10; i++) {
-
-						string s = ofToString(0) + "," + ofToString(0) + "," + ofToString(0);
-						m.addStringArg(s);
-
-					}
 
 				}
 
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC green " + ofToString(m));
-				m.clear();
-			}
-			else {
-				m.setAddress("/green");
-				m.addIntArg(0);
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC green 0 " + ofToString(m));
-				m.clear();
 			}
 
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC green " + ofToString(m));
+			m.clear();
+		}
+		else {
+			m.setAddress("/green");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC green 0 " + ofToString(m));
+			m.clear();
+		}
 
-			//BLUE
-			if (contourFinder3.nBlobs != 0) {
-				int num = contourFinder3.blobs.size();
+
+		//BLUE
+		if (contourFinder3.nBlobs != 0) {
+			int num = contourFinder3.blobs.size();
+			//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
+
+			float a;
+			m.setAddress("/blue");
+			m.addIntArg(num);
+			int cont = 0;
+			for (int i = 0; i < contourFinder3.nBlobs; i++) {
+				a = ofMap(contourFinder3.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
+				posX = ofMap(contourFinder3.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, 0, 1);
+				posY = ofMap(contourFinder3.blobs[i].boundingRect.getCenter().y, 0, camWidthReduced, 0, 1);
+				string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+				m.addStringArg(s);
+				cont++;
+			}
+			if (cont < 10) {
+				for (int i = cont; i < 10; i++) {
+
+					string s = ofToString(0) + "," + ofToString(0) + "," + ofToString(0);
+					m.addStringArg(s);
+
+				}
+
+			}
+
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
+			m.clear();
+		}
+		else {
+			m.setAddress("/blue");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+			m.clear();
+		}
+
+		//LUMINOSIDAD  //KICK
+		if (contourFinder4.nBlobs != 0) {
+			if (lightSent == false) {
+				lightSent = true;
+				int num = contourFinder4.blobs.size();
 				//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
 
 				float a;
-				m.setAddress("/blue");
+				m.setAddress("/light");
 				m.addIntArg(num);
-				int cont = 0;
-				for (int i = 0; i < contourFinder3.nBlobs; i++) {
-					a = ofMap(contourFinder3.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
-					posX = ofMap(contourFinder3.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, 0, 1);
-					posY = ofMap(contourFinder3.blobs[i].boundingRect.getCenter().y, 0, camWidthReduced, 0, 1);
+
+				for (int i = 0; i < contourFinder4.nBlobs; i++) {
+					ofLog(OF_LOG_NOTICE, "Caja BLob tam " + ofToString(contourFinder4.blobs[i].boundingRect.getArea()));
+					a = ofMap(contourFinder4.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
+					posX = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, 0, 1);
+					posY = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().y, 0, camHeightReduced, 0, 1);
 					string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
 					m.addStringArg(s);
-					cont++;
-				}
-				if (cont < 10) {
-					for (int i = cont; i < 10; i++) {
-
-						string s = ofToString(0) + "," + ofToString(0) + "," + ofToString(0);
-						m.addStringArg(s);
-
-					}
-
 				}
 
 				senderOSC.sendMessage(m);
 				//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
 				m.clear();
 			}
-			else {
-				m.setAddress("/blue");
-				m.addIntArg(0);
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
-				m.clear();
-			}
+		}
+		else {
+			lightSent = false;
+			m.setAddress("/light");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+			m.clear();
+		}
 
-			//LUMINOSIDAD  //KICK
-			if (contourFinder4.nBlobs != 0) {
-				if (lightSent == false) {
-					lightSent = true;
-					int num = contourFinder4.blobs.size();
-					//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
+		//LUMINOSIDAD  //CAJA
+		if (contourFinder8.nBlobs != 0) {
+			if (lightSent2 == false) {
+				lightSent2 = true;
+				int num = contourFinder8.blobs.size();
+				
 
-					float a;
-					m.setAddress("/light");
-					m.addIntArg(num);
-
-					for (int i = 0; i < contourFinder4.nBlobs; i++) {
-						a = ofMap(contourFinder4.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
-						posX = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().x, 0, camWidth, 0, 1);
-						posY = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().y, 0, camHeight, 0, 1);
-						string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
-						m.addStringArg(s);
-					}
-
-					senderOSC.sendMessage(m);
-					//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
-					m.clear();
-				}
-			}
-			else {
-				lightSent = false;
-				m.setAddress("/light");
-				m.addIntArg(0);
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
-				m.clear();
-			}
-
-			//LUMINOSIDAD  //CAJA
-			if (contourFinder8.nBlobs != 0) {
-				if (lightSent2 == false) {
-					lightSent2 = true;
-					int num = contourFinder4.blobs.size();
-					//ofLog(OF_LOG_NOTICE, "OSC blue NUM " + ofToString(num));
-
-					float a;
-					m.setAddress("/lightSmall");
-					m.addIntArg(num);
-
-					for (int i = 0; i < contourFinder4.nBlobs; i++) {
-						a = ofMap(contourFinder4.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
-						posX = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().x, 0, camWidth, 0, 1);
-						posY = ofMap(contourFinder4.blobs[i].boundingRect.getCenter().y, 0, camHeight, 0, 1);
-						string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
-						m.addStringArg(s);
-					}
-
-					senderOSC.sendMessage(m);
-					//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
-					m.clear();
-				}
-			}
-			else {
-				lightSent2 = false;
+				float a;
 				m.setAddress("/lightSmall");
-				m.addIntArg(0);
-				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
-				m.clear();
-			}
+				m.addIntArg(num);
 
-			//LUMINOSIDAD 2
-			if (contourFinder5.nBlobs != 0) {
-				if (lightSent==false) {
-					//lightSent = true;
-					int num = contourFinder5.blobs.size();
-					ofLog(OF_LOG_NOTICE, "OSC circ grande " + ofToString(num));
-
-					float a;
-					m.setAddress("/circleLeft");
-					m.addIntArg(num);
-
-					for (int i = 0; i < contourFinder5.nBlobs; i++) {
-						a = ofMap(contourFinder5.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
-						posX = ofMap(contourFinder5.blobs[i].boundingRect.getCenter().x, 0, camWidth, 0, 1);
-						posY = ofMap(contourFinder5.blobs[i].boundingRect.getCenter().y, 0, camHeight, 0, 1);
-						string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
-						m.addStringArg(s);
-					}
-
-					senderOSC.sendMessage(m);
-					//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
-					m.clear();
+				for (int i = 0; i < contourFinder8.nBlobs; i++) {
+					ofLog(OF_LOG_NOTICE, "Caja BLob tam " + ofToString(contourFinder8.blobs[i].boundingRect.getArea()));
+					a = ofMap(contourFinder8.blobs[i].boundingRect.getArea(), minArea, maxArea, 0, 1);
+					posX = ofMap(contourFinder8.blobs[i].boundingRect.getCenter().x, 0, camWidthReduced, -1, 1);
+					posY = ofMap(contourFinder8.blobs[i].boundingRect.getCenter().y, 0, camHeightReduced, 0, 1);
+					string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+					m.addStringArg(s);
 				}
-			}
-			else {
-				//lightSent = false;
-				m.setAddress("/circleLeft");
-				m.addIntArg(0);
+
 				senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+				//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
 				m.clear();
 			}
+		}
+		else {
+			lightSent2 = false;
+			m.setAddress("/lightSmall");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+			m.clear();
+		}
 
-			//CIRCULO IZQDA
-			if (contourFinderCircleL.nBlobs != 0) {
-				int num = contourFinderCircleL.blobs.size();
-				//ofLog(OF_LOG_NOTICE, "BLOBSIZQDA " + ofToString(num));
+		//CIRCULO IZQDA
+		if (contourFinder5.nBlobs != 0) {
+			if (bassSent == false) {
+				bassSent = true;
+				int num = contourFinder5.blobs.size();
+				ofLog(OF_LOG_NOTICE, "OSC circ izqda " + ofToString(num));
+
+				float centroX = ROIx / 2;
+				float centroY = ROIy;
+				float dist = 0;
+
+				float a;
+				m.setAddress("/circleLeft");
+				m.addIntArg(num);
+
+				for (int i = 0; i < contourFinder5.nBlobs; i++) {
+					dist = sqrt(pow(contourFinder5.blobs[i].boundingRect.getCenter().x - centroX, 2) + pow(contourFinder5.blobs[i].boundingRect.getCenter().y - centroY, 2));
+					dist = ofMap(dist, 0, radioCirculo, 0, 1);
+					a = ofMap(contourFinder5.blobs[i].boundingRect.getArea(), minAreaC, maxAreaC, 0, 1);
+					string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+					m.addStringArg(s);
+				}
+
+				senderOSC.sendMessage(m);
+				//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
+				m.clear();
 			}
-			else {
-				//ofLog(OF_LOG_NOTICE, "NOBLOBSIZ ");
-				//lightSent = false;
-				//m.setAddress("/lightSmall");
-				//m.addIntArg(0);
-				//senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
-				//m.clear();
-			}
-			//CIRCULO CENTRO
-			if (contourFinderCircleC.nBlobs != 0) {
-				int num = contourFinderCircleC.blobs.size();
-				//ofLog(OF_LOG_NOTICE, "BLOBSCENTRO " + ofToString(num));
-			}
-			else {
-				//ofLog(OF_LOG_NOTICE, "NOBLOBSCENTRO ");
-				//lightSent = false;
-				//m.setAddress("/lightSmall");
-				//m.addIntArg(0);
-				//senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
-				//m.clear();
+				
+		}
+		else {
+			bassSent = false;
+			m.setAddress("/circleLeft");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+			m.clear();
+		}
+
+		//CIRCULO CENTRO
+		if (contourFinder6.nBlobs != 0) {
+
+			//lightSent = true;
+			int num = contourFinder6.blobs.size();
+			//ofLog(OF_LOG_NOTICE, "OSC circ izqda " + ofToString(num));
+
+			float centroX = ROIx+ROIx/2;
+			float centroY = ROIy;
+			float dist = 0;
+
+			float a;
+			m.setAddress("/circleCenter");
+			m.addIntArg(num);
+
+			for (int i = 0; i < contourFinder6.nBlobs; i++) {
+				dist = sqrt(pow(contourFinder6.blobs[i].boundingRect.getCenter().x - centroX, 2) + pow(contourFinder6.blobs[i].boundingRect.getCenter().y - centroY, 2));
+				dist = ofMap(dist, 0, radioCirculo, 0, 1);
+				a = ofMap(contourFinder6.blobs[i].boundingRect.getArea(), minAreaC, maxAreaC, 0, 1);
+				string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+				m.addStringArg(s);
 			}
 
-			//CIRCULO DCHA
-			if (contourFinderCircleR.nBlobs != 0) {
-				int num = contourFinderCircleR.blobs.size();
-				//ofLog(OF_LOG_NOTICE, "BLOBSDCHA " + ofToString(num));
-			}
-			else {
-				//ofLog(OF_LOG_NOTICE, "NOBLOBSDCHA " );
-				//lightSent = false;
-				//m.setAddress("/lightSmall");
-				//m.addIntArg(0);
-				//senderOSC.sendMessage(m);
-				//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
-				//m.clear();
-			}
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
+			m.clear();
 
 		}
+		else {
+			m.setAddress("/circleCenter");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+			m.clear();
+		}
+
+		//CIRCULO CENTRO
+		if (contourFinder7.nBlobs != 0) {
+
+			//lightSent = true;
+			int num = contourFinder7.blobs.size();
+			//ofLog(OF_LOG_NOTICE, "OSC circ izqda " + ofToString(num));
+
+			float centroX = ROIx*2+ROIx/2;
+			float centroY = ROIy;
+			float dist = 0;
+
+			float a;
+			m.setAddress("/circleRight");
+			m.addIntArg(num);
+
+			for (int i = 0; i < contourFinder7.nBlobs; i++) {
+				dist = sqrt(pow(contourFinder7.blobs[i].boundingRect.getCenter().x - centroX, 2) + pow(contourFinder7.blobs[i].boundingRect.getCenter().y - centroY, 2));
+				dist = ofMap(dist, 0, radioCirculo, 0, 1);
+				a = ofMap(contourFinder7.blobs[i].boundingRect.getArea(), minAreaC, maxAreaC, 0, 1);
+				string s = ofToString(posX) + "," + ofToString(posY) + "," + ofToString(a);
+				m.addStringArg(s);
+			}
+
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue " + ofToString(m));
+			m.clear();
+
+		}
+		else {
+			m.setAddress("/circleRight");
+			m.addIntArg(0);
+			senderOSC.sendMessage(m);
+			//ofLog(OF_LOG_NOTICE, "OSC blue 0 " + ofToString(m));
+			m.clear();
+		}
+
+			
+		
 		
 		
 		
@@ -764,6 +850,7 @@ void ofApp::draw(){
 		filtered2.draw(camWidthReduced, camHeightReduced, camWidthReduced, camHeightReduced);
 		filtered3.draw(camWidthReduced *2, camHeightReduced, camWidthReduced, camHeightReduced);
 		filtered4.draw(camWidthReduced * 3, camHeightReduced, camWidthReduced, camHeightReduced);
+		filtered8.draw(camWidthReduced * 4, camHeightReduced, camWidthReduced, camHeightReduced);
 		
 		
 		//tercera fila
@@ -771,6 +858,7 @@ void ofApp::draw(){
 		contourFinder2.draw(camWidthReduced, camHeightReduced * 2, camWidthReduced, camHeightReduced);
 		contourFinder3.draw(camWidthReduced *2, camHeightReduced * 2, camWidthReduced, camHeightReduced);
 		contourFinder4.draw(camWidthReduced * 3, camHeightReduced * 2, camWidthReduced, camHeightReduced);
+		contourFinder8.draw(camWidthReduced * 4, camHeightReduced * 2, camWidthReduced, camHeightReduced);
 
 		//cuarta fila
 		circleLeftROI.draw(camWidthReduced, camHeightReduced * 3, ROIx, ROIy); 
@@ -1003,6 +1091,23 @@ void ofApp::keyPressed(int key){
 		maxAreaC = maxAreaC - 1000;
 		ofLog(OF_LOG_NOTICE, "maxAreaC " + ofToString(maxAreaC));
 	}
+
+	if (key == 'y' || key == 'Y')
+	{
+		cirLisActive=!cirLisActive;
+		ofLog(OF_LOG_NOTICE, "cirLisActive " + ofToString(cirLisActive));
+	}
+	if (key == 'u' || key == 'U')
+	{
+		cirCisActive = !cirCisActive;
+		ofLog(OF_LOG_NOTICE, "cirCisActive " + ofToString(cirCisActive));
+	}
+	if (key == 'i' || key == 'I')
+	{
+		cirRisActive = !cirRisActive;
+		ofLog(OF_LOG_NOTICE, "cirRisActive " + ofToString(cirRisActive));
+	}
+
 	switch (key) {
 	case ' ':
 		bLearnBakground = true;

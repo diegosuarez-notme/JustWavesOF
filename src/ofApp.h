@@ -86,11 +86,18 @@ public:
 	bool	bLearnBakground;
 	bool	lightSent;
 	bool	lightSent2;
+	bool	bassSent;
+	bool    cirLisActive, cirCisActive, cirRisActive;
 	int		minArea, maxArea;
 	int		minAreaC, maxAreaC;
 	int		maxBright,minBright;
 	int		ROIx, ROIy;
 	int		radioCirculo; //radio del circulo que servira de mascara
+	float blobsValues[30];
+	int numBlobsValues;
+	float numBlobsSumaX;
+	float numBlobsSumaY;
+	//vector<float> blobsValues;
 
 	//OSC
 	ofxOscSender senderOSC;
