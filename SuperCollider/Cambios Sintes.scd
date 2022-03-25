@@ -1,5 +1,7 @@
+Ndef(\noiseWave).set(\ampg,0.3);
+Ndef(\noiseWave).set(\gate,1);
 
-Ndef.clear(5);
+
 
 ~revTime=0.2;
 
@@ -7,6 +9,7 @@ Ndef.clear(5);
 
 ~fadeTime=1;
 
+~ampli=0.1;
 ~ampli=0.3;
 ~ampli=0.4;
 ~ampli=0.6;

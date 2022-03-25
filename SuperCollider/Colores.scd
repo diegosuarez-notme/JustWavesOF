@@ -8,7 +8,7 @@
 
 (
 Ndef(\r0,{
-	arg f1=50,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=0.6,pan=0;
+	arg f1=00,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=0.6,pan=0;
 	var sig;
 
 	var n=3;
@@ -157,7 +157,7 @@ Ndef(\r9,{
 	sig=sig*ampg;
 }).playN;
 
-)
+
 
 
 ///////////////////////////////////////////////////
@@ -165,14 +165,8 @@ Ndef(\r9,{
 //////////////////////////////////////////////////
 
 
-~n=5; //esta se puede meter en el synthdef
-////// g0 es el bueno
-
-Ndef(\g0).set(\harmDist,2)
-Ndef(\g0).fadeTime=0.2
 
 
-(
 Ndef(\g0,{
 	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=1,pan=0;
 	var sig;
@@ -325,11 +319,11 @@ Ndef(\g9,{
 
 
 
-)
+
 ///////////////////////////////////////////////////
 //////BLUE SOUNDS
 //////////////////////////////////////////////////
-(
+
 Ndef(\b0,{
 	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=2,pan=0;
 	var sig;

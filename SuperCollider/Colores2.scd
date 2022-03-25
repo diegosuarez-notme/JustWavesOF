@@ -328,7 +328,7 @@ Ndef(\g9,{
 //////////////////////////////////////////////////
 (
 Ndef(\b0,{
-	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=5,pan=0;
+	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=10,pan=0;
 	var sig;
 
 	var n=20;
@@ -343,7 +343,7 @@ Ndef(\b0,{
 }).playN;
 
 Ndef(\b1,{
-	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=5,pan=0;
+	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=10,pan=0;
 	var sig;
 
 	var n=20;
@@ -358,7 +358,7 @@ Ndef(\b1,{
 }).playN;
 
 Ndef(\b2,{
-	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=5,pan=0;
+	arg f1=0,a1=1, revTime=0.1,revRange=0.4,ampg=0.6,harmonics=5,harmDist=10,pan=0;
 	var sig;
 
 	var n=20;
